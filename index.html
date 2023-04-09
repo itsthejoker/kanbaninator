@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kanban Test for Joplin</title>
+    <link rel="stylesheet" href="static/vendored/bootstrap.min.css">
+    <link rel="stylesheet" href="static/vendored/jkanban.min.css">
+    <script src="static/vendored/axios.min.js"></script>
+    <script src="static/vendored/bootstrap.min.js"></script>
+    <script src="static/vendored/jkanban.min.js"></script>
+</head>
+<body>
+<div class="container">
+    hi
+</div>
+<script type="application/javascript">
+    function startLogin() {
+        axios.post('http://127.0.0.1:41184/auth')
+            .then(function (response) {
+                // handle success
+                console.log(response.data.auth_token);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            })
+            .finally(function () {
+                // always executed
+            });
+    }
+</script>
+</body>
+</html>
