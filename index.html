@@ -10,24 +10,346 @@
     <script src="static/vendored/bootstrap.min.js"></script>
     <script src="static/vendored/jkanban.min.js"></script>
 </head>
-<body>
-<div class="container">
-    hi
+<body class="container">
+<!-- Spinner -->
+<img id="loadingSpinner"
+     src="static/Double%20Ring-1s-267px.gif"
+     class="position-absolute top-50 start-50 translate-middle"
+     style="display: none"
+>
+
+<!-- StartModal -->
+<div class="modal modal-lg" id="startModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="startModelLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="startModelLabel">Joplin Kanbaninator</h1>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Welcome to Kanbaninator for <a href="https://joplinapp.org/" target="_blank">Joplin</a>!
+                    Joplin is a note-taking app that lets you keep complete control of your data, and this
+                    app gives you a way to organize some of that data in a kanban-style board while ensuring
+                    you keep your data where it should stay: with you.
+                </p>
+                <p>
+                    Kanbaninator uses the 'web clipper' service system that's built into Joplin to interact
+                    with your notes. On your desktop app, go to <strong>Tools > Options > Web Clipper</strong>,
+                    then enable the service if it isn't already enabled. You'll only need one thing here to
+                    get started: what is the port number displayed?
+                </p>
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="joplin_port_number">Port Number</span>
+                    <input type="text" class="form-control" aria-label="Sizing example input"
+                           aria-describedby="joplin_port_number" value="41184">
+                </div>
+                <p>
+                    You should see a dialogue appear in your Joplin app asking if you want to authorize the
+                    Web Clipper connection; click "Grant Authorisation" to get started.
+                </p>
+                <p style="display: none" id="portNumberError"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="validatePort()">Authenticate</button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- FolderModal -->
+<div class="modal modal-lg" id="folderModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="folderModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="folderModalLabel">What Notebook Are You Working In?</h1>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Here are the notebooks we can see. Which notebook is the root notebook for your
+                    kanban board?
+                </p>
+                <p>
+                    If we don't detect a configuration note, we'll go ahead and create one.
+                </p>
+                <ul id="folderList"></ul>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" onclick="validatePort()">Authenticate</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="kanbanBoard" class="mt-5"></div>
+
 <script type="application/javascript">
+    document.addEventListener("DOMContentLoaded", function (event) {
+        window.startModal = new bootstrap.Modal(document.getElementById('startModal'));
+        window.folderModal = new bootstrap.Modal(document.getElementById('folderModal'));
+        window.startModal.show();
+    })
+
+    function showSpinner() {
+        document.getElementById("loadingSpinner").style.display = 'block'
+    }
+
+    function hideSpinner() {
+        document.getElementById("loadingSpinner").style.display = 'none'
+    }
+
+    function validatePort() {
+        let port_number = document.getElementById("joplin_port_number").nextElementSibling.value;
+        if (!(window.isNaN(port_number))) {
+            window.port_number = port_number;
+            startLogin()
+        } else {
+            let errorp = document.getElementById("portNumberError");
+            errorp.style.display = 'block';
+            errorp.textContent = "That's not a number. Please put in a port number."
+            window.startModal.show();
+        }
+    }
+
+    function saveBoardState() {
+        let boardState = JSON.stringify(renderJSON(), null, 2);
+        boardState = "```json\n" + boardState + "\n```\n\n This note is automatically maintained by [Kanbaninator](https://itsthejoker.github.io/kanbaninator/).";
+        axios.put(`http://127.0.0.1:${window.port_number}/notes/${window.configNoteId}?token=${window.token}`, {body: boardState})
+    }
+
+    function createListElement(obj) {
+        let newListItem = document.createElement("li");
+        let newListItemButton = document.createElement('span');
+        let itemTitle = document.createElement('span');
+        newListItemButton.classList.add('badge', 'bg-primary', 'me-2', 'text-white');
+        newListItemButton.onclick = selectFolder;
+        newListItemButton.innerText = 'Select';
+        newListItemButton.style.cursor = 'pointer'
+        newListItem.setAttribute('data-joplin-id', obj.id);
+        newListItem.setAttribute('data-joplin-parent-id', obj.parent_id);
+        itemTitle.textContent = obj.title;
+        newListItem.appendChild(newListItemButton);
+        newListItem.appendChild(itemTitle);
+        return newListItem;
+    }
+
+    function populateFolderModal() {
+        const bigList = document.getElementById("folderList");
+        let folderArray = [...window.folders];
+
+        while (folderArray.length) {
+            folderArray.forEach((folder) => {
+                if (folder.parent_id === '') {
+                    bigList.appendChild(createListElement(folder))
+                    folderArray = folderArray.filter(temp => temp.id !== folder.id);
+                } else {
+                    try {
+                        let target = document.querySelector(`[data-joplin-id="${folder.parent_id}"]`);
+                        let newUL = document.createElement('ul');
+                        newUL.appendChild(createListElement(folder));
+                        target.appendChild(newUL);
+                        folderArray = folderArray.filter(temp => temp.id !== folder.id);
+                    } catch (error) {
+                        // continue, we'll pass it on the next iteration
+                    }
+                }
+            })
+        }
+    }
+
+    function add_title_buttons() {
+        var titles = document.getElementsByClassName("kanban-title-board");
+        if (titles.length == 0) {
+            return;
+        }
+
+        for (var column = 0; column < titles.length; column++) {
+            var currentColumn = titles[column];
+            if (currentColumn.innerHTML.includes('button-add-item')) {
+                continue;
+            }
+
+            let boardId = currentColumn.parentElement.parentElement.dataset.id;
+            let buttonAddText = "<button type=\"button\" class=\"button-add-item btn bg-success text-white btn-sm ms-2\" onclick=\"spawnTitlePrompt('" + boardId + "')\">+</button>";
+            currentColumn.innerHTML = currentColumn.innerHTML + buttonAddText;
+        }
+    }
+
+    function spawnTitlePrompt(boardId) {
+        let card_name = prompt("Title of the new card?", "");
+        if (card_name == null || card_name === "") {
+            console.log('failed to get input, did user cancel?')
+        } else {
+            add_item(boardId, card_name)
+        }
+    }
+
+    function add_item(boardid, title) {
+        window.kanban.addElement(boardid, {
+            title: title
+        })
+        let postData = {
+            parent_id: boardid,
+            title: title,
+        }
+
+        axios.post(
+            `http://127.0.0.1:${window.port_number}/notes?token=${window.token}`,
+            postData
+        )
+    }
+
+    function renderJSON() {
+        let boards = []
+        document.querySelectorAll('.kanban-board').forEach(el => {
+            let item = []
+            el.querySelectorAll('.kanban-item').forEach(i => {
+                item.push({
+                    title: i.childNodes[0].textContent,
+                    id: i.dataset.eid,
+                })
+            })
+            boards.push({
+                id: el.getAttribute('data-id'),
+                title: el.querySelector('.kanban-title-board').innerHTML,
+                item,
+            })
+        })
+        return boards
+    }
+
+
+    function buildKanbanBoard() {
+        window.kanban = new jKanban({
+            element: '#kanbanBoard',
+            boards: window.config,
+            click: function (el) {
+                console.log("click")
+                console.log(el)
+            },
+            dropEl: function (el, target, source, sibling) {
+                axios.put(`http://127.0.0.1:${window.port_number}/notes/${el.dataset.eid}?token=${window.token}`, {parent_id: target.parentElement.dataset.id})
+                saveBoardState();
+            },
+            dragendBoard: function (el) {
+                saveBoardState();
+            },
+            buttonClick: function (el, boardId) {
+                console.log(el, boardId)
+            },
+        })
+        add_title_buttons();
+    }
+
+    function getConfigNote() {
+        axios.get(`http://127.0.0.1:${window.port_number}/notes/${window.configNoteId}?token=${window.token}&fields=body`)
+            .then(function (response) {
+                try {
+                    window.config_note = response.data.body;
+                    window.config_note = window.config_note.split('\n');
+                    const firstIndex = window.config_note.findIndex(element => element === '```json');
+                    const lastIndex = window.config_note.findLastIndex(element => element === '```');
+                    let data = window.config_note.slice(firstIndex + 1, lastIndex).join('');
+                    window.config = JSON.parse(data);
+                    console.log(window.config);
+                    buildKanbanBoard();
+                    window.folderModal.hide()
+                } catch (error) {
+                    console.log("Found config, but cannot load. Error:");
+                    console.log(error)
+                }
+            })
+    }
+
+    function createConfigNote() {
+        let startFolders = window.folders.filter(temp => temp.parent_id === window.root_folder);
+        let startData = []
+        startFolders.forEach((folder) => {
+            axios.get(
+                `http://127.0.0.1:${window.port_number}/folders/${folder.id}/notes?token=${window.token}`,
+            ).then(function (response) {
+                startData.push({id: folder.id, title: folder.title, item: response.data.items})
+            })
+        })
+
+        let postData = {
+            parent_id: window.root_folder,
+            title: ".kanbaninator",
+            body: `This is an automatically-generated note by Kanbaninator.\n\n\`\`\`json\n${JSON.stringify(startData, null, 2)}\n\`\`\``
+        }
+
+        axios.post(
+            `http://127.0.0.1:${window.port_number}/notes?token=${window.token}`,
+            postData
+        )
+            .then(function (response) {
+                window.configNoteId = response.data.id;
+                window.config = startData;
+                buildKanbanBoard();
+                window.folderModal.hide();
+                console.log(response);
+            })
+
+    }
+
+    function selectFolder() {
+        window.root_folder = this.parentElement.dataset.joplinId
+        axios.get(`http://127.0.0.1:${window.port_number}/folders/${window.root_folder}/notes?token=${window.token}`)
+            .then(function (response) {
+                response.data.items.forEach((note) => {
+                    if (note.title === ".kanbaninator") {
+                        window.configNoteId = note.id;
+                        getConfigNote();
+                    }
+                });
+                if (window.configNoteId === undefined) {
+                    // we didn't find a config note in this folder.
+                    createConfigNote()
+                }
+            })
+    }
+
+    function finishSetup() {
+        axios.get(`http://127.0.0.1:${window.port_number}/auth/check?auth_token=${window.auth_token}`)
+            .then(function (response) {
+                if (response.data.status === "waiting") {
+                    return
+                } else {
+                    window.token = response.data.token;
+                    getFolders();
+                    hideSpinner();
+                    window.folderModal.show();
+                    clearInterval(window.getKeyInterval);
+                }
+            })
+    }
+
     function startLogin() {
-        axios.post('http://127.0.0.1:41184/auth')
+        axios.post(`http://127.0.0.1:${window.port_number}/auth`)
             .then(function (response) {
                 // handle success
-                console.log(response.data.auth_token);
+                console.log(`auth success, received key ${response.data.auth_token}`);
+                window.auth_token = response.data.auth_token;
+                window.startModal.hide();
+                showSpinner();
+                window.getKeyInterval = setInterval(finishSetup, 500)
             })
             .catch(function (error) {
-                // handle error
                 console.log(error);
+                let errorp = document.getElementById("portNumberError");
+                errorp.style.display = 'block';
+                errorp.textContent = "Something went wrong; is that the right port?"
+                window.startModal.show();
             })
-            .finally(function () {
-                // always executed
-            });
+    }
+
+    function getFolders() {
+        axios.get(`http://127.0.0.1:${window.port_number}/folders?token=${window.token}`)
+            .then(function (response) {
+                window.folders = response.data.items;
+                populateFolderModal()
+            })
     }
 </script>
 </body>
