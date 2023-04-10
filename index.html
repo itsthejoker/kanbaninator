@@ -82,9 +82,6 @@
                 </p>
                 <ul id="folderList"></ul>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" onclick="validatePort()">Authenticate</button>
-            </div>
         </div>
     </div>
 </div>
@@ -353,7 +350,7 @@
                 console.log(error);
                 let errorp = document.getElementById("portNumberError");
                 errorp.style.display = 'block';
-                errorp.textContent = "Something went wrong; is that the right port?"
+                errorp.textContent = "Something went wrong; is that the right port? Alternatively, is Web Clipper enabled?"
                 window.startModal.show();
             })
     }
