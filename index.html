@@ -96,6 +96,10 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="currentNoteTitle">Title</span>
+                    <input type="text" class="form-control" aria-label="Title of the note" id="noteTitleField" aria-describedby="currentNoteTitle">
+                </div>
                 <div class="form-floating">
                     <div id="currentNoteId" class="d-none"></div>
                     <textarea class="form-control" placeholder="Leave a comment here" id="noteBodyField" style="height: 150px"></textarea>
@@ -295,10 +299,11 @@
     }
 
     function getNoteBodyById(noteId) {
-        axios.get(`http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}&fields=body`)
+        axios.get(`http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}&fields=body,title`)
             .then(function (response) {
                 try {
                     document.getElementById('currentNoteId').textContent = noteId;
+                    document.getElementById('noteTitleField').value = response.data.title;
                     document.getElementById('noteBodyField').value = response.data.body;
                     window.editModal.show();
                 } catch (error) {
@@ -310,10 +315,18 @@
 
     function updateNoteBodyById() {
         let noteId = document.getElementById('currentNoteId').textContent;
+        let noteTitle = document.getElementById('noteTitleField').value;
         axios.put(
             `http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}`,
-            {body: document.getElementById('noteBodyField').value}
+            {
+                body: document.getElementById('noteBodyField').value,
+                title: noteTitle
+            }
         );
+        let currentNote = document.querySelector(`[data-eid="${noteId}"]`);
+        if (currentNote.textContent !== noteTitle) {
+            currentNote.textContent = noteTitle
+        }
         window.editModal.hide();
     }
 
