@@ -86,6 +86,30 @@
     </div>
 </div>
 
+<!-- Edit Note Modal -->
+<div class="modal modal-lg" id="editNoteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="editNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="editNoteModalLabel">View / Edit Note</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="form-floating">
+                    <div id="currentNoteId" class="d-none"></div>
+                    <textarea class="form-control" placeholder="Leave a comment here" id="noteBodyField" style="height: 150px"></textarea>
+                    <label for="noteBodyField">Note Body</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updateNoteBodyById()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="kanbanBoard" class="mt-5"></div>
 
 <!--<style>-->
@@ -99,6 +123,7 @@
     document.addEventListener("DOMContentLoaded", function (event) {
         window.startModal = new bootstrap.Modal(document.getElementById('startModal'));
         window.folderModal = new bootstrap.Modal(document.getElementById('folderModal'));
+        window.editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
         window.startModal.show();
     })
 
@@ -236,8 +261,7 @@
             element: '#kanbanBoard',
             boards: window.config,
             click: function (el) {
-                console.log("click")
-                console.log(el)
+                getNoteBodyById(el.dataset.eid);
             },
             dropEl: function (el, target, source, sibling) {
                 axios.put(`http://127.0.0.1:${window.port_number}/notes/${el.dataset.eid}?token=${window.token}`, {parent_id: target.parentElement.dataset.id})
@@ -245,9 +269,6 @@
             },
             dragendBoard: function (el) {
                 saveBoardState();
-            },
-            buttonClick: function (el, boardId) {
-                console.log(el, boardId)
             },
         })
         add_title_buttons();
@@ -271,6 +292,29 @@
                     console.log(error)
                 }
             })
+    }
+
+    function getNoteBodyById(noteId) {
+        axios.get(`http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}&fields=body`)
+            .then(function (response) {
+                try {
+                    document.getElementById('currentNoteId').textContent = noteId;
+                    document.getElementById('noteBodyField').value = response.data.body;
+                    window.editModal.show();
+                } catch (error) {
+                    console.log(`Found requested note ${noteId}, but cannot load body. Error:`);
+                    console.log(error)
+                }
+            })
+    }
+
+    function updateNoteBodyById() {
+        let noteId = document.getElementById('currentNoteId').textContent;
+        axios.put(
+            `http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}`,
+            {body: document.getElementById('noteBodyField').value}
+        );
+        window.editModal.hide();
     }
 
     function createConfigNote() {
