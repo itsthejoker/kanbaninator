@@ -114,6 +114,34 @@
     </div>
 </div>
 
+<!-- New Note Modal -->
+<div class="modal modal-lg" id="newNoteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="newNoteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="newNoteModalLabel">Create Note</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="input-group mb-3">
+                    <div id="newNoteBoardId" class="d-none"></div>
+                    <span class="input-group-text" id="newNoteTitle">Title</span>
+                    <input type="text" class="form-control" aria-label="Title of the note" id="newNoteTitleField" aria-describedby="newNoteTitle">
+                </div>
+                <div class="form-floating">
+                    <textarea class="form-control" placeholder="Leave a comment here" id="newNoteBodyField" style="height: 150px"></textarea>
+                    <label for="newNoteBodyField">Note Body</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="add_item()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="kanbanBoard" class="mt-5"></div>
 
 <!--<style>-->
@@ -128,6 +156,7 @@
         window.startModal = new bootstrap.Modal(document.getElementById('startModal'));
         window.folderModal = new bootstrap.Modal(document.getElementById('folderModal'));
         window.editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
+        window.newNoteModal = new bootstrap.Modal(document.getElementById('newNoteModal'));
         window.startModal.show();
     })
 
@@ -217,27 +246,33 @@
     }
 
     function spawnTitlePrompt(boardId) {
-        let card_name = prompt("Title of the new card?", "");
-        if (card_name == null || card_name === "") {
-            console.log('failed to get input, did user cancel?')
-        } else {
-            add_item(boardId, card_name)
-        }
+        document.getElementById("newNoteTitleField").value = "";
+        document.getElementById("newNoteBodyField").value = "";
+        document.getElementById("newNoteBoardId").textContent = boardId;
+        window.newNoteModal.show()
     }
 
-    function add_item(boardid, title) {
-        window.kanban.addElement(boardid, {
-            title: title
-        })
+    function add_item() {
+        window.newNoteModal.hide();
+        let title = document.getElementById("newNoteTitleField").value;
+        let body = document.getElementById("newNoteBodyField").value;
+        let boardId = document.getElementById("newNoteBoardId").textContent;
+
         let postData = {
-            parent_id: boardid,
+            parent_id: boardId,
             title: title,
+            body: body
         }
 
         axios.post(
             `http://127.0.0.1:${window.port_number}/notes?token=${window.token}`,
             postData
-        )
+        ).then(function (response) {
+            window.kanban.addElement(boardId, {
+                title: title,
+                id: response.data.id
+            })
+        })
     }
 
     function renderJSON() {
@@ -258,7 +293,6 @@
         })
         return boards
     }
-
 
     function buildKanbanBoard() {
         window.kanban = new jKanban({
