@@ -87,7 +87,7 @@
 </div>
 
 <!-- Edit Note Modal -->
-<div class="modal modal-lg" id="editNoteModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+<div class="modal modal-lg" id="editNoteModal" data-bs-keyboard="false" tabindex="-1"
      aria-labelledby="editNoteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -107,6 +107,7 @@
                 </div>
             </div>
             <div class="modal-footer">
+                <button type="button" class="btn btn-danger" onclick="deleteNote()">Delete</button>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-primary" onclick="updateNoteBodyById()">Save changes</button>
             </div>
@@ -158,7 +159,16 @@
         window.editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
         window.newNoteModal = new bootstrap.Modal(document.getElementById('newNoteModal'));
         window.startModal.show();
-    })
+    });
+
+    // https://stackoverflow.com/a/13278323
+    console.logCopy = console.log.bind(console);
+
+    console.log = function(data)
+    {
+        var timestamp = '[' + new Date().toLocaleString() + '] ';
+        this.logCopy(timestamp, data);
+    };
 
     function showSpinner() {
         document.getElementById("loadingSpinner").style.display = 'block'
@@ -252,6 +262,17 @@
         window.newNoteModal.show()
     }
 
+    function deleteNote() {
+        let noteId = document.getElementById('currentNoteId').textContent;
+        axios.delete(
+            `http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}`
+        ).then(function (response) {
+            window.kanban.removeElement(noteId);
+            console.log(`Deleted note ${noteId}`);
+            window.editModal.hide()
+        })
+    }
+
     function add_item() {
         window.newNoteModal.hide();
         let title = document.getElementById("newNoteTitleField").value;
@@ -271,7 +292,8 @@
             window.kanban.addElement(boardId, {
                 title: title,
                 id: response.data.id
-            })
+            });
+            console.log(`Created note ${response.data.id}`);
         })
     }
 
@@ -302,7 +324,10 @@
                 getNoteBodyById(el.dataset.eid);
             },
             dropEl: function (el, target, source, sibling) {
-                axios.put(`http://127.0.0.1:${window.port_number}/notes/${el.dataset.eid}?token=${window.token}`, {parent_id: target.parentElement.dataset.id})
+                axios.put(
+                    `http://127.0.0.1:${window.port_number}/notes/${el.dataset.eid}?token=${window.token}`,
+                    {parent_id: target.parentElement.dataset.id}
+                )
                 saveBoardState();
             },
             dragendBoard: function (el) {
@@ -313,7 +338,9 @@
     }
 
     function getConfigNote() {
-        axios.get(`http://127.0.0.1:${window.port_number}/notes/${window.configNoteId}?token=${window.token}&fields=body`)
+        axios.get(
+            `http://127.0.0.1:${window.port_number}/notes/${window.configNoteId}?token=${window.token}&fields=body`
+        )
             .then(function (response) {
                 try {
                     window.config_note = response.data.body;
@@ -322,8 +349,8 @@
                     const lastIndex = window.config_note.findLastIndex(element => element === '```');
                     let data = window.config_note.slice(firstIndex + 1, lastIndex).join('');
                     window.config = JSON.parse(data);
-                    console.log(window.config);
                     buildKanbanBoard();
+                    console.log("Found existing config & built board.")
                     window.folderModal.hide()
                 } catch (error) {
                     console.log("Found config, but cannot load. Error:");
@@ -333,7 +360,9 @@
     }
 
     function getNoteBodyById(noteId) {
-        axios.get(`http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}&fields=body,title`)
+        axios.get(
+            `http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}&fields=body,title`
+        )
             .then(function (response) {
                 try {
                     document.getElementById('currentNoteId').textContent = noteId;
@@ -362,6 +391,7 @@
             currentNote.textContent = noteTitle
         }
         window.editModal.hide();
+        console.log(`Edited note ${noteId}`);
     }
 
     function createConfigNote() {
@@ -390,6 +420,7 @@
                 window.config = startData;
                 buildKanbanBoard();
                 window.folderModal.hide();
+                console.log("Created config from scratch and built board.")
                 console.log(response);
             })
 
@@ -397,7 +428,9 @@
 
     function selectFolder() {
         window.root_folder = this.parentElement.dataset.joplinId
-        axios.get(`http://127.0.0.1:${window.port_number}/folders/${window.root_folder}/notes?token=${window.token}`)
+        axios.get(
+            `http://127.0.0.1:${window.port_number}/folders/${window.root_folder}/notes?token=${window.token}`
+        )
             .then(function (response) {
                 response.data.items.forEach((note) => {
                     if (note.title === ".kanbaninator") {
