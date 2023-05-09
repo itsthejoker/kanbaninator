@@ -143,6 +143,37 @@
     </div>
 </div>
 
+<!-- Template Board Modal -->
+<div class="modal modal-lg" id="templateModal" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="templateModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="templateModalLabel">Use a Template?</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                There aren't any folders under the one you selected; would you like to automatically create
+                some? Here are some template options:
+                </p>
+                <ul>
+                    <li>
+                        Standard Kanban board - Backlog, In Progress, Done. <span class='btn btn-sm bg-primary text-white' onclick="templateBasicKanban()">Use this template</span>
+                    </li>
+                    <li>
+                        Basic 10-part HEA outline. <span class='btn btn-sm bg-primary text-white' onclick="templateHEA()">Use this template</span>
+                    </li>
+                </ul>
+                Or don't use any template at all, that's cool too.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Nope</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="kanbanBoard" class="mt-5"></div>
 
 <!--<style>-->
@@ -158,6 +189,7 @@
         window.folderModal = new bootstrap.Modal(document.getElementById('folderModal'));
         window.editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
         window.newNoteModal = new bootstrap.Modal(document.getElementById('newNoteModal'));
+        window.templateModal = new bootstrap.Modal(document.getElementById('templateModal'));
         window.startModal.show();
     });
 
@@ -317,9 +349,13 @@
     }
 
     function buildKanbanBoard() {
+        let boardlist = window.config;
+        if (boardlist === undefined) {
+            boardlist = []
+        }
         window.kanban = new jKanban({
             element: '#kanbanBoard',
-            boards: window.config,
+            boards: boardlist,
             click: function (el) {
                 getNoteBodyById(el.dataset.eid);
             },
@@ -426,8 +462,55 @@
 
     }
 
+    function templateBasicKanban() {
+        buildKanbanBoard();
+        createFolder("Backlog");
+        createFolder("In Progress");
+        createFolder("Done");
+        getFolders();
+        add_title_buttons();
+        createConfigNote();
+        saveBoardState();
+        window.templateModal.hide();
+    }
+
+    function templateHEA() {
+        buildKanbanBoard();
+        createFolder("Act 1: The Hook");
+        createFolder("Act 1: Inciting Incident");
+        createFolder("Act 1: Plot Point 1");
+        createFolder("Act 2: Pinch Point 1");
+        createFolder("Act 2: Midpoint");
+        createFolder("Act 2: Pinch Point 2");
+        createFolder("Act 2: Plot Point 2");
+        createFolder("Act 3: The Crisis");
+        createFolder("Act 3: Climax");
+        createFolder("Act 3: Resolution");
+        getFolders();
+        add_title_buttons();
+        createConfigNote();
+        saveBoardState();
+        window.templateModal.hide();
+    }
+
+    function createFolder(folderName) {
+        axios.post(
+            `http://127.0.0.1:${window.port_number}/folders/?token=${window.token}`,
+            {
+                parent_id: window.root_folder,
+                title: folderName
+            }
+        ).then(function (response) {
+            window.kanban.addBoards(
+                [
+                    {'id': response.data.id, 'title': folderName}
+                ]
+            )
+        })
+    }
+
     function selectFolder() {
-        window.root_folder = this.parentElement.dataset.joplinId
+        window.root_folder = this.parentElement.dataset.joplinId;
         axios.get(
             `http://127.0.0.1:${window.port_number}/folders/${window.root_folder}/notes?token=${window.token}`
         )
@@ -440,7 +523,12 @@
                 });
                 if (window.configNoteId === undefined) {
                     // we didn't find a config note in this folder.
-                    createConfigNote()
+                    if (window.folders.filter(temp => temp.parent_id === window.root_folder).length === 0) {
+                        window.folderModal.hide();
+                        window.templateModal.show();
+                        } else {
+                        createConfigNote()
+                    }
                 }
             })
     }
