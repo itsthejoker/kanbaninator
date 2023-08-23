@@ -95,11 +95,13 @@
             <div class="modal-body">
                 <div class="input-group mb-3">
                     <span class="input-group-text" id="currentNoteTitle">Title</span>
-                    <input type="text" class="form-control" aria-label="Title of the note" id="noteTitleField" aria-describedby="currentNoteTitle">
+                    <input type="text" class="form-control" aria-label="Title of the note" id="noteTitleField"
+                           aria-describedby="currentNoteTitle">
                 </div>
                 <div class="form-floating">
                     <div id="currentNoteId" class="d-none"></div>
-                    <textarea class="form-control" placeholder="Leave a comment here" id="noteBodyField" style="height: 150px"></textarea>
+                    <textarea class="form-control" placeholder="Leave a comment here" id="noteBodyField"
+                              style="height: 150px"></textarea>
                     <label for="noteBodyField">Note Body</label>
                 </div>
             </div>
@@ -125,10 +127,12 @@
                 <div class="input-group mb-3">
                     <div id="newNoteBoardId" class="d-none"></div>
                     <span class="input-group-text" id="newNoteTitle">Title</span>
-                    <input type="text" class="form-control" aria-label="Title of the note" id="newNoteTitleField" aria-describedby="newNoteTitle">
+                    <input type="text" class="form-control" aria-label="Title of the note" id="newNoteTitleField"
+                           aria-describedby="newNoteTitle">
                 </div>
                 <div class="form-floating">
-                    <textarea class="form-control" placeholder="Leave a comment here" id="newNoteBodyField" style="height: 150px"></textarea>
+                    <textarea class="form-control" placeholder="Leave a comment here" id="newNoteBodyField"
+                              style="height: 150px"></textarea>
                     <label for="newNoteBodyField">Note Body</label>
                 </div>
             </div>
@@ -165,24 +169,77 @@
 
 <div id="kanbanBoard" class="mt-5"></div>
 
-<script type="application/javascript">
-    document.addEventListener("DOMContentLoaded", function (event) {
-        window.startModal = new bootstrap.Modal(document.getElementById('startModal'));
-        window.folderModal = new bootstrap.Modal(document.getElementById('folderModal'));
-        window.editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
-        window.newNoteModal = new bootstrap.Modal(document.getElementById('newNoteModal'));
-        window.premadeModal = new bootstrap.Modal(document.getElementById('newPremadeModal'));
-        window.startModal.show();
-    });
+<style>
+    .kanban-item:hover {
+        cursor: pointer;
+    }
 
+    .kanban-board-header:hover {
+        cursor: pointer;
+    }
+
+    .kanban-item {
+        border-radius: 10px;
+        /*background-color: #f0f0f0;*/
+    }
+
+    .kanban-board {
+        border-radius: 10px;
+    }
+
+    .kanban-title-button {
+        border-color: darkgray;
+        border-width: 1px;
+    }
+
+    .kanban-title-button:hover {
+        border-color: darkgreen;
+        background-color: green;
+    }
+    .kanban-title-board {
+        margin-right: 10px !important;
+    }
+</style>
+
+<script type="application/javascript">
     // https://stackoverflow.com/a/13278323
     console.logCopy = console.log.bind(console);
 
-    console.log = function(data)
-    {
+    function moveUp(elem) {
+        // https://stackoverflow.com/a/68557752
+        var parentElem = elem.parentElement;
+        var elemIndex = Array.prototype.indexOf.call(parentElem.children, elem);
+        parentElem.insertBefore(elem, parentElem.children[elemIndex - 1]);
+    }
+
+    console.log = function (data) {
         var timestamp = '[' + new Date().toLocaleString() + '] ';
         this.logCopy(timestamp, data);
     };
+
+    // https://www.w3schools.com/js/js_cookies.asp
+    function setCookie(cname, cvalue, exdays) {
+        const d = new Date();
+        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+        let expires = "expires=" + d.toUTCString();
+        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+    }
+
+    function getCookie(cname) {
+        let name = cname + "=";
+        let decodedCookie = decodeURIComponent(document.cookie);
+        let ca = decodedCookie.split(';');
+        for (let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) === 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
 
     function showSpinner() {
         document.getElementById("loadingSpinner").style.display = 'block'
@@ -207,7 +264,14 @@
 
     function saveBoardState() {
         let boardState = JSON.stringify(renderJSON(), null, 2);
-        boardState = "```json\n" + boardState + "\n```\n\nThis note is automatically maintained by [Kanbaninator](https://itsthejoker.github.io/kanbaninator/).\n\nQuick link: https://itsthejoker.github.io/kanbaninator/?parent=" + window.root_folder;
+        boardState = (
+            "Quick link: https://itsthejoker.github.io/kanbaninator/?configNoteId=" + window.configNoteId + "&root_folder=" + window.root_folder
+            + "\n\n"
+            + "```json\n"
+            + boardState
+            + "\n```\n\n"
+            + "This note is automatically maintained by [Kanbaninator](https://itsthejoker.github.io/kanbaninator/)."
+        );
         axios.put(`http://127.0.0.1:${window.port_number}/notes/${window.configNoteId}?token=${window.token}`, {body: boardState})
     }
 
@@ -227,9 +291,22 @@
         return newListItem;
     }
 
-    function templateHerosJourney() {
+    function buildTemplate(templateData) {
         window.config = [];
-        [
+        templateData.forEach((title) => {
+            window.config.push({
+                "id": crypto.randomUUID(),
+                "title": title,
+                "item": []
+            })
+        })
+        buildKanbanBoard();
+        window.premadeModal.hide();
+        saveBoardState();
+    }
+
+    function templateHerosJourney() {
+        buildTemplate([
             "Call to Adventure",
             "Refusal of Call",
             "Supernatural Aid/Mentor",
@@ -243,21 +320,11 @@
             "Road Back",
             "Master of Two Worlds",
             "Ultimate Reward",
-        ].forEach((title) => {
-            window.config.push({
-                "id": crypto.randomUUID(),
-                "title": title,
-                "item":[]
-            })
-        })
-        buildKanbanBoard();
-        window.premadeModal.hide();
-        saveBoardState();
+        ])
     }
 
     function templateRomancingTheBeat() {
-        window.config = [];
-        [
+        buildTemplate([
             "Setup: Introduce H1",
             "Introduce H2",
             "Meet Cute",
@@ -278,21 +345,11 @@
             "Grand Gesture",
             "What Whole-Hearted Looks Like",
             "Epilogue"
-        ].forEach((title) => {
-            window.config.push({
-                "id": crypto.randomUUID(),
-                "title": title,
-                "item":[]
-            })
-        })
-        buildKanbanBoard();
-        window.premadeModal.hide();
-        saveBoardState();
+        ])
     }
 
     function templateThreeActStructure() {
-        window.config = [];
-        [
+        buildTemplate([
             "Act 1: Beginning",
             "Inciting Incident",
             "Second Thoughts",
@@ -307,16 +364,7 @@
             "Act 3: Climax",
             "Wrap-up",
             "End"
-        ].forEach((title) => {
-            window.config.push({
-                "id": crypto.randomUUID(),
-                "title": title,
-                "item":[]
-            })
-        })
-        buildKanbanBoard();
-        window.premadeModal.hide();
-        saveBoardState();
+        ])
     }
 
     function populateFolderModal() {
@@ -344,8 +392,8 @@
     }
 
     function add_title_buttons() {
-        var titles = document.getElementsByClassName("kanban-title-board");
-        if (titles.length == 0) {
+        const titles = document.getElementsByClassName("kanban-title-board");
+        if (titles.length === 0) {
             return;
         }
 
@@ -356,7 +404,7 @@
             }
 
             let boardId = currentColumn.parentElement.parentElement.dataset.id;
-            let buttonAddText = "<button type=\"button\" class=\"button-add-item btn bg-success text-white btn-sm ms-2\" onclick=\"spawnTitlePrompt('"+ boardId +"')\">+</button>";
+            let buttonAddText = "<button type=\"button\" class=\"button-add-item btn bg-success text-white btn-sm ms-2\" onclick=\"spawnTitlePrompt('" + boardId + "')\">+</button>";
             currentColumn.innerHTML = currentColumn.innerHTML + buttonAddText;
         }
     }
@@ -370,7 +418,7 @@
 
     function deleteNote() {
         let noteId = document.getElementById('currentNoteId').textContent;
-        if (confirm("Delete this note?") == true) {
+        if (confirm("Delete this note?") === true) {
             axios.delete(
                 `http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}`
             ).then(function (response) {
@@ -437,8 +485,25 @@
             dragendBoard: function (el) {
                 saveBoardState();
             },
+            itemAddOptions: {
+                enabled: true,                                              // add a button to board for easy item creation
+                content: '+',                                                // text or html content of the board button
+                class: 'button-add-item btn kanban-title-button text-white btn-xs',         // default class of the button
+                footer: false                                                // position the button on footer
+            },
         })
-        add_title_buttons();
+        Array.from(document.getElementsByClassName("button-add-item")).forEach(el => {
+            el.addEventListener("click", function () {
+                spawnTitlePrompt(el.parentElement.parentElement.dataset.id);
+            });
+            moveUp(el);
+        });
+    }
+
+    function setCookies() {
+        setCookie("configNoteId", window.configNoteId, 365);
+        setCookie("joplinToken", window.token, 365);
+        setCookie("joplinPort", window.port_number, 365);
     }
 
     function getConfigNote() {
@@ -454,8 +519,9 @@
                     let data = window.config_note.slice(firstIndex + 1, lastIndex).join('');
                     window.config = JSON.parse(data);
                     buildKanbanBoard();
-                    console.log("Found existing config & built board.")
-                    window.folderModal.hide()
+                    console.log("Found existing config & built board.");
+                    window.folderModal.hide();
+                    setCookies();
                 } catch (error) {
                     console.log("Found config, but cannot load. Error:");
                     console.log(error)
@@ -496,40 +562,6 @@
         }
         window.editModal.hide();
         console.log(`Edited note ${noteId}`);
-    }
-
-    function createConfigNote(premade) {
-        // let startFolders = window.folders.filter(temp => temp.parent_id === window.root_folder);
-        // let startData = []
-        // startFolders.forEach((folder) => {
-        //     axios.get(
-        //         `http://127.0.0.1:${window.port_number}/folders/${folder.id}/notes?token=${window.token}`,
-        //     ).then(function (response) {
-        //         startData.push({id: folder.id, title: folder.title, item: response.data.items})
-        //     })
-        // })
-        
-        const startData = premade;
-
-        let postData = {
-            parent_id: window.root_folder,
-            title: ".kanbaninator",
-            body: `This is an automatically-generated note by Kanbaninator.\n\n\`\`\`json\n${JSON.stringify(startData, null, 2)}\n\`\`\``
-        }
-
-        axios.post(
-            `http://127.0.0.1:${window.port_number}/notes?token=${window.token}`,
-            postData
-        )
-            .then(function (response) {
-                window.configNoteId = response.data.id;
-                window.config = startData;
-                buildKanbanBoard();
-                window.folderModal.hide();
-                console.log("Created config from scratch and built board.")
-                console.log(response);
-            })
-
     }
 
     function selectFolder() {
@@ -599,12 +631,49 @@
     }
 
     function getFolders() {
+        // we may enter this with an invalid token, so we need to check for that.
         axios.get(`http://127.0.0.1:${window.port_number}/folders?token=${window.token}`)
             .then(function (response) {
                 window.folders = response.data.items;
                 populateFolderModal()
             })
+            .catch(function (error) {
+                // we got an invalid token, so restart from the auth flow
+                window.startModal.show();
+            })
     }
+
+    document.addEventListener("DOMContentLoaded", function (event) {
+        window.startModal = new bootstrap.Modal(document.getElementById('startModal'));
+        window.folderModal = new bootstrap.Modal(document.getElementById('folderModal'));
+        window.editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
+        window.newNoteModal = new bootstrap.Modal(document.getElementById('newNoteModal'));
+        window.premadeModal = new bootstrap.Modal(document.getElementById('newPremadeModal'));
+
+        const joplinToken = getCookie("joplinToken");
+        const joplinPort = getCookie("joplinPort");
+        const params = new URLSearchParams(window.location.search);
+        console.log(joplinToken, joplinPort, params.get("configNoteId"));
+        if (joplinToken && joplinPort) {
+            window.token = joplinToken;
+            window.port_number = joplinPort;
+
+            if (params.get("configNoteId")) {
+                window.root_folder = params.get("root_folder");
+                window.configNoteId = params.get("configNoteId");
+                getFolders();
+                getConfigNote();
+                return
+            }
+
+            getFolders();
+            window.folderModal.show();
+        } else {
+            window.startModal.show();
+        }
+
+        window.startModal.show();
+    });
 </script>
 </body>
 </html>
