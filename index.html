@@ -35,10 +35,7 @@
                 </p>
                 <p>
                     <strong>Setup:</strong> in Joplin, create an empty notebook that will be your 'base' for
-                    the board. Under that notebook, create new notebooks, one for each of the columns you want
-                    to see on the board. Kanbaninator will automatically read any notes you already have under
-                    these sub-notebooks (already in the columns), and will also automatically move notes
-                    between sub-notebooks as you move cards around on the board.
+                    the board.
                 </p>
                 <p>
                     Kanbaninator uses the 'web clipper' service system that's built into Joplin to interact
@@ -143,14 +140,30 @@
     </div>
 </div>
 
-<div id="kanbanBoard" class="mt-5"></div>
+<!-- New Premade Modal -->
+<div class="modal modal-lg" id="newPremadeModal" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="newPremadeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="newPremadeModalLabel">Starting Template</h1>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Here are some premade story beats that you can use to get started! Select whichever
+                    suits your fancy.
+                </p>
+                <div class="d-grid gap-2">
+                    <div class="btn btn-primary" onclick="templateHerosJourney()">The Hero's Journey</div>
+                    <div class="btn btn-primary" onclick="templateRomancingTheBeat()">Romancing the Beat</div>
+                    <div class="btn btn-primary" onclick="templateThreeActStructure()">Three-Act Structure</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-<!--<style>-->
-<!--    .kanban-container {-->
-<!--        padding-left: 2em;-->
-<!--        padding-right: 2em;-->
-<!--    }-->
-<!--</style>-->
+<div id="kanbanBoard" class="mt-5"></div>
 
 <script type="application/javascript">
     document.addEventListener("DOMContentLoaded", function (event) {
@@ -158,6 +171,7 @@
         window.folderModal = new bootstrap.Modal(document.getElementById('folderModal'));
         window.editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
         window.newNoteModal = new bootstrap.Modal(document.getElementById('newNoteModal'));
+        window.premadeModal = new bootstrap.Modal(document.getElementById('newPremadeModal'));
         window.startModal.show();
     });
 
@@ -193,7 +207,7 @@
 
     function saveBoardState() {
         let boardState = JSON.stringify(renderJSON(), null, 2);
-        boardState = "```json\n" + boardState + "\n```\n\n This note is automatically maintained by [Kanbaninator](https://itsthejoker.github.io/kanbaninator/).";
+        boardState = "```json\n" + boardState + "\n```\n\nThis note is automatically maintained by [Kanbaninator](https://itsthejoker.github.io/kanbaninator/).\n\nQuick link: https://itsthejoker.github.io/kanbaninator/?parent=" + window.root_folder;
         axios.put(`http://127.0.0.1:${window.port_number}/notes/${window.configNoteId}?token=${window.token}`, {body: boardState})
     }
 
@@ -211,6 +225,98 @@
         newListItem.appendChild(newListItemButton);
         newListItem.appendChild(itemTitle);
         return newListItem;
+    }
+
+    function templateHerosJourney() {
+        window.config = [];
+        [
+            "Call to Adventure",
+            "Refusal of Call",
+            "Supernatural Aid/Mentor",
+            "Road of Trials",
+            "Crossing the Threshold",
+            "Death of Mentor",
+            "Ordeal",
+            "Temptation",
+            "Battle with the Brother",
+            "Refusal to Return",
+            "Road Back",
+            "Master of Two Worlds",
+            "Ultimate Reward",
+        ].forEach((title) => {
+            window.config.push({
+                "id": crypto.randomUUID(),
+                "title": title,
+                "item":[]
+            })
+        })
+        buildKanbanBoard();
+        window.premadeModal.hide();
+        saveBoardState();
+    }
+
+    function templateRomancingTheBeat() {
+        window.config = [];
+        [
+            "Setup: Introduce H1",
+            "Introduce H2",
+            "Meet Cute",
+            "No Way 1",
+            "Adhesion",
+            "Falling in Love: No Way 2",
+            "Inkling of Desire",
+            "Deepening Desire",
+            "Maybe This Could Work",
+            "Midpoint of Love",
+            "Retreating from Love: Inkling of Doubt",
+            "Deepening Doubt",
+            "Retreat Beat",
+            "Shields Up",
+            "Break Up",
+            "Fighting for Love: Dark Night",
+            "Wake Up",
+            "Grand Gesture",
+            "What Whole-Hearted Looks Like",
+            "Epilogue"
+        ].forEach((title) => {
+            window.config.push({
+                "id": crypto.randomUUID(),
+                "title": title,
+                "item":[]
+            })
+        })
+        buildKanbanBoard();
+        window.premadeModal.hide();
+        saveBoardState();
+    }
+
+    function templateThreeActStructure() {
+        window.config = [];
+        [
+            "Act 1: Beginning",
+            "Inciting Incident",
+            "Second Thoughts",
+            "Climax of Act 1",
+            "Act 2: Obstacle",
+            "Obstacle 2",
+            "Midpoint (Big Twist)",
+            "Obstacle 3",
+            "Disaster",
+            "Crisis",
+            "Climax of Act 2",
+            "Act 3: Climax",
+            "Wrap-up",
+            "End"
+        ].forEach((title) => {
+            window.config.push({
+                "id": crypto.randomUUID(),
+                "title": title,
+                "item":[]
+            })
+        })
+        buildKanbanBoard();
+        window.premadeModal.hide();
+        saveBoardState();
     }
 
     function populateFolderModal() {
@@ -250,7 +356,7 @@
             }
 
             let boardId = currentColumn.parentElement.parentElement.dataset.id;
-            let buttonAddText = "<button type=\"button\" class=\"button-add-item btn bg-success text-white btn-sm ms-2\" onclick=\"spawnTitlePrompt('" + boardId + "')\">+</button>";
+            let buttonAddText = "<button type=\"button\" class=\"button-add-item btn bg-success text-white btn-sm ms-2\" onclick=\"spawnTitlePrompt('"+ boardId +"')\">+</button>";
             currentColumn.innerHTML = currentColumn.innerHTML + buttonAddText;
         }
     }
@@ -264,13 +370,15 @@
 
     function deleteNote() {
         let noteId = document.getElementById('currentNoteId').textContent;
-        axios.delete(
-            `http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}`
-        ).then(function (response) {
-            window.kanban.removeElement(noteId);
-            console.log(`Deleted note ${noteId}`);
-            window.editModal.hide()
-        })
+        if (confirm("Delete this note?") == true) {
+            axios.delete(
+                `http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}`
+            ).then(function (response) {
+                window.kanban.removeElement(noteId);
+                console.log(`Deleted note ${noteId}`);
+                window.editModal.hide()
+            })
+        }
     }
 
     function add_item() {
@@ -280,7 +388,7 @@
         let boardId = document.getElementById("newNoteBoardId").textContent;
 
         let postData = {
-            parent_id: boardId,
+            parent_id: window.root_folder,
             title: title,
             body: body
         }
@@ -324,10 +432,6 @@
                 getNoteBodyById(el.dataset.eid);
             },
             dropEl: function (el, target, source, sibling) {
-                axios.put(
-                    `http://127.0.0.1:${window.port_number}/notes/${el.dataset.eid}?token=${window.token}`,
-                    {parent_id: target.parentElement.dataset.id}
-                )
                 saveBoardState();
             },
             dragendBoard: function (el) {
@@ -394,16 +498,18 @@
         console.log(`Edited note ${noteId}`);
     }
 
-    function createConfigNote() {
-        let startFolders = window.folders.filter(temp => temp.parent_id === window.root_folder);
-        let startData = []
-        startFolders.forEach((folder) => {
-            axios.get(
-                `http://127.0.0.1:${window.port_number}/folders/${folder.id}/notes?token=${window.token}`,
-            ).then(function (response) {
-                startData.push({id: folder.id, title: folder.title, item: response.data.items})
-            })
-        })
+    function createConfigNote(premade) {
+        // let startFolders = window.folders.filter(temp => temp.parent_id === window.root_folder);
+        // let startData = []
+        // startFolders.forEach((folder) => {
+        //     axios.get(
+        //         `http://127.0.0.1:${window.port_number}/folders/${folder.id}/notes?token=${window.token}`,
+        //     ).then(function (response) {
+        //         startData.push({id: folder.id, title: folder.title, item: response.data.items})
+        //     })
+        // })
+        
+        const startData = premade;
 
         let postData = {
             parent_id: window.root_folder,
@@ -440,7 +546,20 @@
                 });
                 if (window.configNoteId === undefined) {
                     // we didn't find a config note in this folder.
-                    createConfigNote()
+                    let postData = {
+                        parent_id: window.root_folder,
+                        title: ".kanbaninator",
+                        body: ""
+                    }
+
+                    axios.post(
+                        `http://127.0.0.1:${window.port_number}/notes?token=${window.token}`,
+                        postData
+                    ).then(function (response) {
+                        window.configNoteId = response.data.id;
+                    })
+                    window.folderModal.hide();
+                    window.premadeModal.show();
                 }
             })
     }

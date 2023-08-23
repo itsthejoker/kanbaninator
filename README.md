@@ -4,17 +4,7 @@
 
 ## Setup
 
-Start by creating an empty notebook. This is the 'root' of your kanban board. Under this notebook, create sub-notebooks for each column that you want to have. This setup step only needs to be done once.
-
-Once your folders are all in place, you should have something that looks like this:
-
-```
-Example Board
-|
-|- Backlog
-|- In Progress
-|- Done
-```
+Start by creating an empty notebook. This is the 'root' of your kanban board. No other setup is necessary.
 
 You will also need to enable the Joplin Web Clipper service. Go to **Tools > Options > Web Clipper** and enable the service. Note what port it's running on -- you'll need that to connect in a minute.
 
