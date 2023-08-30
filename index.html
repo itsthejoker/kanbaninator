@@ -12,11 +12,13 @@
 </head>
 <body class="">
 <!-- Spinner -->
-<img id="loadingSpinner"
-     src="static/Double%20Ring-1s-267px.gif"
-     class="position-absolute top-50 start-50 translate-middle"
-     style="display: none"
->
+<div id="loadingSpinner" style="display: none">
+    <h2 class="text-center mt-5">Please check Joplin to accept the connection.</h2>
+    <img id="loadingSpinner"
+        class="position-absolute top-50 start-50 translate-middle"
+        src="static/Double%20Ring-1s-267px.gif"
+    >
+</div>
 
 <!-- StartModal -->
 <div class="modal modal-lg" id="startModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
@@ -83,6 +85,29 @@
     </div>
 </div>
 
+<!-- TitleModal -->
+<div class="modal modal-lg" id="titleModal" tabindex="-1"
+     aria-labelledby="titleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="titleModalLabel">Change Board Title</h1>
+            </div>
+            <div class="modal-body">
+                <div class="input-group mb-3">
+                    <span class="input-group-text" id="currentBoardTitle">Title</span>
+                    <input type="text" class="form-control" aria-label="Title of the board" id="boardTitleField"
+                           aria-describedby="currentBoardTitle">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updateBoardTitle()">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Edit Note Modal -->
 <div class="modal modal-lg" id="editNoteModal" data-bs-keyboard="false" tabindex="-1"
      aria-labelledby="editNoteModalLabel" aria-hidden="true">
@@ -103,6 +128,57 @@
                     <textarea class="form-control" placeholder="Leave a comment here" id="noteBodyField"
                               style="height: 150px"></textarea>
                     <label for="noteBodyField">Note Body</label>
+                </div>
+                <hr>
+                <div class="text-center">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col1radio" value="col1">
+                        <label class="form-check-label col1 colorbox" for="col1radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col2radio" value="col2">
+                        <label class="form-check-label col2 colorbox" for="col2radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col3radio" value="col3">
+                        <label class="form-check-label col3 colorbox" for="col3radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col4radio" value="col4">
+                        <label class="form-check-label col4 colorbox" for="col4radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col5radio" value="col5">
+                        <label class="form-check-label col5 colorbox" for="col5radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col6radio" value="col6">
+                        <label class="form-check-label col6 colorbox" for="col6radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col7radio" value="col7">
+                        <label class="form-check-label col7 colorbox" for="col7radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col8radio" value="col8">
+                        <label class="form-check-label col8 colorbox" for="col8radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col9radio" value="col9">
+                        <label class="form-check-label col9 colorbox" for="col9radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col10radio" value="col10">
+                        <label class="form-check-label col10 colorbox" for="col10radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col11radio" value="col11">
+                        <label class="form-check-label col11 colorbox" for="col11radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="colorRadio" id="col12radio" value="col12" checked>
+                        <label class="form-check-label col12 colorbox" for="col12radio"></label>
+                      </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -134,6 +210,56 @@
                     <textarea class="form-control" placeholder="Leave a comment here" id="newNoteBodyField"
                               style="height: 150px"></textarea>
                     <label for="newNoteBodyField">Note Body</label>
+                </div>
+                <div class="text-center mt-2">
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol1radio" value="col1">
+                        <label class="form-check-label col1 colorbox" for="ncol1radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol2radio" value="col2">
+                        <label class="form-check-label col2 colorbox" for="ncol2radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol3radio" value="col3">
+                        <label class="form-check-label col3 colorbox" for="ncol3radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol4radio" value="col4">
+                        <label class="form-check-label col4 colorbox" for="ncol4radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol5radio" value="col5">
+                        <label class="form-check-label col5 colorbox" for="ncol5radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol6radio" value="col6">
+                        <label class="form-check-label col6 colorbox" for="ncol6radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol7radio" value="col7">
+                        <label class="form-check-label col7 colorbox" for="ncol7radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol8radio" value="col8">
+                        <label class="form-check-label col8 colorbox" for="ncol8radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol9radio" value="col9">
+                        <label class="form-check-label col9 colorbox" for="ncol9radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol10radio" value="col10">
+                        <label class="form-check-label col10 colorbox" for="ncol10radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol11radio" value="col11">
+                        <label class="form-check-label col11 colorbox" for="ncol11radio"></label>
+                      </div>
+                      <div class="form-check form-check-inline">
+                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol12radio" value="col12" checked>
+                        <label class="form-check-label col12 colorbox" for="ncol12radio"></label>
+                      </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -167,9 +293,21 @@
     </div>
 </div>
 
-<div id="kanbanBoard" class="mt-5"></div>
+<div class="container-fluid min-vh-100 d-flex flex-column">
+    <h1 id="boardTitle" class="text-center pt-4" onclick="showTitleModal()" style="cursor: pointer;">...</h1>
+    <div id="kanbanBoard" class="py-5" style="overflow:scroll;"></div>
+    <div class="row flex-grow-1">
+        <div class="restOfPage"></div>
+    </div>
+</div>
 
 <style>
+    /* html, body {
+        height: 100%;
+        
+        display: flex;
+        flex-direction: column;
+    } */
     .kanban-item:hover {
         cursor: pointer;
     }
@@ -187,6 +325,14 @@
         border-radius: 10px;
     }
 
+    .colorbox {
+        border-style: solid;
+        border-width: 1px;
+        border-color: black;
+        height: 23px;
+        width: 23px;
+    }
+
     .kanban-title-button {
         border-color: darkgray;
         border-width: 1px;
@@ -199,11 +345,56 @@
     .kanban-title-board {
         margin-right: 10px !important;
     }
+    .restOfPage {
+        background-color: #eee;
+        overflow: scroll;
+    }
+    .col1 {
+        background-color: rgba(68,138,255,0.2);
+    }
+    .col2 {
+        background-color: rgba(0,176,255,0.2);
+    }
+    .col3 {
+        background-color: rgba(83,211,230,0.2);
+    }
+    .col4 {
+        background-color: rgba(0,191,165,0.2);
+    }
+    .col5 {
+        background-color: rgba(0,200,83,0.2);
+    }
+    .col6 {
+        background-color: rgba(100,221,23,0.2);
+    }
+    .col7 {
+        background-color: rgba(255,145,0,0.2);
+    }
+    .col8 {
+        background-color: rgba(255,82,82,0.2);
+    }
+    .col9 {
+        background-color: rgba(255,23,68,0.2);
+    }
+    .col10 {
+        background-color: rgba(101,31,255,0.2);
+    }
+    .col11 {
+        background-color: rgba(159,159,159,0.2);
+    }
+    .col12 {
+        background-color: rgba(255, 255, 255, 1);
+    }
 </style>
 
 <script type="application/javascript">
     // https://stackoverflow.com/a/13278323
     console.logCopy = console.log.bind(console);
+
+    const colorClassValues = [
+        "col1", "col2", "col3", "col4", "col5", "col6",
+        "col7", "col8", "col9", "col10", "col11", "col12"
+    ]
 
     function moveUp(elem) {
         // https://stackoverflow.com/a/68557752
@@ -262,10 +453,17 @@
         }
     }
 
+    function setProjectUrl() {
+        const url = new URL(window.location.href);
+        url.searchParams.set('configNoteId', window.configNoteId);
+        url.searchParams.set('rootFolder', window.rootFolder);
+        window.history.pushState({}, '', url);
+    }
+
     function saveBoardState() {
         let boardState = JSON.stringify(renderJSON(), null, 2);
         boardState = (
-            "Quick link: https://itsthejoker.github.io/kanbaninator/?configNoteId=" + window.configNoteId + "&root_folder=" + window.root_folder
+            "Quick link: https://itsthejoker.github.io/kanbaninator/?configNoteId=" + window.configNoteId + "&rootFolder=" + window.rootFolder
             + "\n\n"
             + "```json\n"
             + boardState
@@ -429,17 +627,34 @@
         }
     }
 
+    function apply_colors() {
+        Array.from(document.getElementsByClassName("kanban-item")).forEach(el => {
+            let colorClass = el.dataset.colorclass;
+            el.classList.remove(...colorClassValues);
+            el.classList.add(colorClass);
+        })
+    }
+
     function add_item() {
         window.newNoteModal.hide();
         let title = document.getElementById("newNoteTitleField").value;
         let body = document.getElementById("newNoteBodyField").value;
         let boardId = document.getElementById("newNoteBoardId").textContent;
+        
 
         let postData = {
-            parent_id: window.root_folder,
+            parent_id: window.rootFolder,
             title: title,
             body: body
         }
+
+        let colorClass = "";
+
+        Array.from(document.getElementsByName("newColorRadio")).forEach(function (el) {
+            if (el.checked) {
+                colorClass = el.value;
+            }
+        })
 
         axios.post(
             `http://127.0.0.1:${window.port_number}/notes?token=${window.token}`,
@@ -447,13 +662,17 @@
         ).then(function (response) {
             window.kanban.addElement(boardId, {
                 title: title,
-                id: response.data.id
+                id: response.data.id,
+                colorclass: colorClass
             });
+            apply_colors();
+            saveBoardState();
             console.log(`Created note ${response.data.id}`);
         })
     }
 
     function renderJSON() {
+        let title = document.getElementById("boardTitle").textContent;
         let boards = []
         document.querySelectorAll('.kanban-board').forEach(el => {
             let item = []
@@ -461,6 +680,7 @@
                 item.push({
                     title: i.childNodes[0].textContent,
                     id: i.dataset.eid,
+                    colorClass: i.dataset.colorclass
                 })
             })
             boards.push({
@@ -469,13 +689,17 @@
                 item,
             })
         })
-        return boards
+        return {
+            title: title,
+            data: boards
+        }
     }
 
     function buildKanbanBoard() {
+        document.getElementById("boardTitle").textContent = window.config.title;
         window.kanban = new jKanban({
             element: '#kanbanBoard',
-            boards: window.config,
+            boards: window.config.data,
             click: function (el) {
                 getNoteBodyById(el.dataset.eid);
             },
@@ -498,6 +722,7 @@
             });
             moveUp(el);
         });
+        apply_colors();
     }
 
     function setCookies() {
@@ -522,11 +747,38 @@
                     console.log("Found existing config & built board.");
                     window.folderModal.hide();
                     setCookies();
+                    setProjectUrl();
                 } catch (error) {
                     console.log("Found config, but cannot load. Error:");
                     console.log(error)
                 }
             })
+    }
+    
+    function showTitleModal() {
+        window.titleModal.show();
+    }
+
+    function hideTitleModal() {
+        window.titleModal.hide();
+    }
+
+    function updateBoardTitle () {
+        let newTitle = document.getElementById("boardTitleField").value;
+        document.getElementById("boardTitle").textContent = newTitle;
+        window.config.title = newTitle;
+        saveBoardState();
+        hideTitleModal();
+    }
+
+    function uncheckAllRadios() {
+        Array.from(document.getElementsByName("colorRadio")).forEach(function (el) {
+            el.checked = false;
+        })
+        Array.from(document.getElementsByName("newColorRadio")).forEach(function (el) {
+            el.checked = false;
+        })
+        
     }
 
     function getNoteBodyById(noteId) {
@@ -538,6 +790,13 @@
                     document.getElementById('currentNoteId').textContent = noteId;
                     document.getElementById('noteTitleField').value = response.data.title;
                     document.getElementById('noteBodyField').value = response.data.body;
+                    let currentColor = document.querySelector(`[data-eid="${noteId}"]`).dataset.colorclass;
+                    if (currentColor === undefined) {
+                        currentColor = "col12";
+                    }
+                    uncheckAllRadios();
+                    document.getElementById(currentColor + "radio").checked = true;
+                    document.getElementById("n" + currentColor + "radio").checked = true;
                     window.editModal.show();
                 } catch (error) {
                     console.log(`Found requested note ${noteId}, but cannot load body. Error:`);
@@ -560,14 +819,23 @@
         if (currentNote.textContent !== noteTitle) {
             currentNote.textContent = noteTitle
         }
+        Array.from(document.getElementsByName("colorRadio")).forEach(function (el) {
+            if (el.checked) {
+                currentNote.classList.remove(...colorClassValues);
+                currentNote.classList.add(el.value);
+                currentNote.dataset.colorclass = el.value;
+            }
+        })
+        apply_colors();
         window.editModal.hide();
         console.log(`Edited note ${noteId}`);
+        saveBoardState();
     }
 
     function selectFolder() {
-        window.root_folder = this.parentElement.dataset.joplinId
+        window.rootFolder = this.parentElement.dataset.joplinId
         axios.get(
-            `http://127.0.0.1:${window.port_number}/folders/${window.root_folder}/notes?token=${window.token}`
+            `http://127.0.0.1:${window.port_number}/folders/${window.rootFolder}/notes?token=${window.token}`
         )
             .then(function (response) {
                 response.data.items.forEach((note) => {
@@ -579,7 +847,7 @@
                 if (window.configNoteId === undefined) {
                     // we didn't find a config note in this folder.
                     let postData = {
-                        parent_id: window.root_folder,
+                        parent_id: window.rootFolder,
                         title: ".kanbaninator",
                         body: ""
                     }
@@ -649,6 +917,7 @@
         window.editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
         window.newNoteModal = new bootstrap.Modal(document.getElementById('newNoteModal'));
         window.premadeModal = new bootstrap.Modal(document.getElementById('newPremadeModal'));
+        window.titleModal = new bootstrap.Modal(document.getElementById('titleModal'));
 
         const joplinToken = getCookie("joplinToken");
         const joplinPort = getCookie("joplinPort");
@@ -659,7 +928,7 @@
             window.port_number = joplinPort;
 
             if (params.get("configNoteId")) {
-                window.root_folder = params.get("root_folder");
+                window.rootFolder = params.get("rootFolder");
                 window.configNoteId = params.get("configNoteId");
                 getFolders();
                 getConfigNote();
@@ -671,8 +940,6 @@
         } else {
             window.startModal.show();
         }
-
-        window.startModal.show();
     });
 </script>
 </body>
