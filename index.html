@@ -492,9 +492,9 @@
     }
 
     function buildTemplate(templateData) {
-        window.config = [];
+        window.config = {title: "My Story", data: []};
         templateData.forEach((title) => {
-            window.config.push({
+            window.config.data.push({
                 "id": crypto.randomUUID(),
                 "title": title,
                 "item": []
