@@ -6,9 +6,6 @@
     <title>Kanban Test for Joplin</title>
     <link rel="stylesheet" href="static/vendored/bootstrap.min.css">
     <link rel="stylesheet" href="static/vendored/jkanban.min.css">
-    <script src="static/vendored/axios.min.js"></script>
-    <script src="static/vendored/bootstrap.min.js"></script>
-    <script src="static/vendored/jkanban.min.js"></script>
 </head>
 <body class="">
 <!-- Spinner -->
@@ -109,7 +106,7 @@
 </div>
 
 <!-- Edit Note Modal -->
-<div class="modal modal-lg" id="editNoteModal" data-bs-keyboard="false" tabindex="-1"
+<div class="modal modal-lg" id="editNoteModal" tabindex="-1"
      aria-labelledby="editNoteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -295,11 +292,10 @@
     </div>
 </div>
 
-<div class="container-fluid min-vh-100 d-flex flex-column">
+<div class="container">
     <h1 id="boardTitle" class="text-center pt-4" onclick="showTitleModal()" style="cursor: pointer;">...</h1>
-    <div id="kanbanBoard" class="py-5" style="overflow:scroll;"></div>
-    <div class="row flex-grow-1">
-        <div class="restOfPage"></div>
+    <div class="text-center">
+        <div id="kanbanBoard" class="container py-5"></div>
     </div>
 </div>
 
@@ -324,7 +320,7 @@
     }
 
     .kanban-board {
-        border-radius: 10px;
+        background-color: white !important;
     }
 
     .colorbox {
@@ -334,12 +330,19 @@
         height: 23px;
         width: 23px;
     }
-
     .kanban-title-button {
         border-color: darkgray;
         border-width: 1px;
     }
-
+    .kanban-board-header, .kanban-drag {
+        background-color: #e2e4e6;
+    }
+    .kanban-board-header {
+        border-radius: 10px 10px 0 0;
+    }
+    .kanban-drag {
+        border-radius: 0 0 10px 10px;
+    }
     .kanban-title-button:hover {
         border-color: darkgreen;
         background-color: green;
@@ -388,6 +391,11 @@
         background-color: rgba(255, 255, 255, 1);
     }
 </style>
+
+<script src="static/vendored/axios.min.js"></script>
+<script src="static/vendored/bootstrap.min.js"></script>
+<script src="static/vendored/jkanban.min.js"></script>
+<script src="static/vendored/dom-autoscroller.min.js"></script>
 
 <script type="application/javascript">
     // https://stackoverflow.com/a/13278323
@@ -734,6 +742,7 @@
         window.kanban = new jKanban({
             element: '#kanbanBoard',
             boards: window.config.data,
+            // responsivePercentage: true,
             click: function (el) {
                 getNoteBodyById(el.dataset.eid);
             },
@@ -750,6 +759,20 @@
                 footer: false                                                // position the button on footer
             },
         })
+
+        autoScroll([
+                this
+            ],{
+                margin: 100,
+                maxSpeed: 50,
+                scrollWhenOutside: true,
+                autoScroll: function(){
+                    //Only scroll when the pointer is down, and there is a child being dragged.
+                    return this.down && window.kanban.drake.dragging;
+                }
+            }
+        );
+
         Array.from(document.getElementsByClassName("button-add-item")).forEach(el => {
             el.addEventListener("click", function () {
                 spawnTitlePrompt(el.parentElement.parentElement.dataset.id);
@@ -757,6 +780,7 @@
             moveUp(el);
         });
         apply_colors();
+        rowatize();
     }
 
     function setCookies() {
@@ -943,6 +967,19 @@
                 // we got an invalid token, so restart from the auth flow
                 window.startModal.show();
             })
+    }
+    
+    function rowatize() {
+        let board = document.getElementsByClassName("kanban-container")[0];
+        board.classList.add("row", "g-2");
+        board.style.width = "";
+        Array.from(document.getElementsByClassName("kanban-board")).forEach(el => {
+            el.classList.add("col-12", "col-md-6", "col-lg-4", "col-xl-3", "p-3");
+            el.style.width = "";
+            el.style.margin = "0";
+            el.style.paddingLeft = "0";
+            el.style.paddingRight = "0";
+        })
     }
 
     document.addEventListener("DOMContentLoaded", function (event) {
