@@ -742,6 +742,7 @@
         window.kanban = new jKanban({
             element: '#kanbanBoard',
             boards: window.config.data,
+            dragBoards: false,
             // responsivePercentage: true,
             click: function (el) {
                 getNoteBodyById(el.dataset.eid);
