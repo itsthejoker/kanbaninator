@@ -6,6 +6,7 @@
     <title>Kanban Test for Joplin</title>
     <link rel="stylesheet" href="static/vendored/bootstrap.min.css">
     <link rel="stylesheet" href="static/vendored/jkanban.min.css">
+    <link rel="stylesheet" href="static/main.css">
 </head>
 <body class="">
 <!-- Spinner -->
@@ -299,98 +300,7 @@
     </div>
 </div>
 
-<style>
-    /* html, body {
-        height: 100%;
-        
-        display: flex;
-        flex-direction: column;
-    } */
-    .kanban-item:hover {
-        cursor: pointer;
-    }
-
-    .kanban-board-header:hover {
-        cursor: pointer;
-    }
-
-    .kanban-item {
-        border-radius: 10px;
-        /*background-color: #f0f0f0;*/
-    }
-
-    .kanban-board {
-        background-color: white !important;
-    }
-
-    .colorbox {
-        border-style: solid;
-        border-width: 1px;
-        border-color: black;
-        height: 23px;
-        width: 23px;
-    }
-    .kanban-title-button {
-        border-color: darkgray;
-        border-width: 1px;
-    }
-    .kanban-board-header, .kanban-drag {
-        background-color: #e2e4e6;
-    }
-    .kanban-board-header {
-        border-radius: 10px 10px 0 0;
-    }
-    .kanban-drag {
-        border-radius: 0 0 10px 10px;
-    }
-    .kanban-title-button:hover {
-        border-color: darkgreen;
-        background-color: green;
-    }
-    .kanban-title-board {
-        margin-right: 10px !important;
-    }
-    .restOfPage {
-        background-color: #eee;
-        overflow: scroll;
-    }
-    .col1 {
-        background-color: rgba(68,138,255,0.2);
-    }
-    .col2 {
-        background-color: rgba(0,176,255,0.2);
-    }
-    .col3 {
-        background-color: rgba(83,211,230,0.2);
-    }
-    .col4 {
-        background-color: rgba(0,191,165,0.2);
-    }
-    .col5 {
-        background-color: rgba(0,200,83,0.2);
-    }
-    .col6 {
-        background-color: rgba(100,221,23,0.2);
-    }
-    .col7 {
-        background-color: rgba(255,145,0,0.2);
-    }
-    .col8 {
-        background-color: rgba(255,82,82,0.2);
-    }
-    .col9 {
-        background-color: rgba(255,23,68,0.2);
-    }
-    .col10 {
-        background-color: rgba(101,31,255,0.2);
-    }
-    .col11 {
-        background-color: rgba(159,159,159,0.2);
-    }
-    .col12 {
-        background-color: rgba(255, 255, 255, 1);
-    }
-</style>
+<script type="module" src="static/main.js"></script>
 
 <script src="static/vendored/axios.min.js"></script>
 <script src="static/vendored/bootstrap.min.js"></script>
@@ -398,49 +308,6 @@
 <script src="static/vendored/dom-autoscroller.min.js"></script>
 
 <script type="application/javascript">
-    // https://stackoverflow.com/a/13278323
-    console.logCopy = console.log.bind(console);
-
-    const colorClassValues = [
-        "col1", "col2", "col3", "col4", "col5", "col6",
-        "col7", "col8", "col9", "col10", "col11", "col12"
-    ]
-
-    function moveUp(elem) {
-        // https://stackoverflow.com/a/68557752
-        var parentElem = elem.parentElement;
-        var elemIndex = Array.prototype.indexOf.call(parentElem.children, elem);
-        parentElem.insertBefore(elem, parentElem.children[elemIndex - 1]);
-    }
-
-    console.log = function (data) {
-        var timestamp = '[' + new Date().toLocaleString() + '] ';
-        this.logCopy(timestamp, data);
-    };
-
-    // https://www.w3schools.com/js/js_cookies.asp
-    function setCookie(cname, cvalue, exdays) {
-        const d = new Date();
-        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-        let expires = "expires=" + d.toUTCString();
-        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-    }
-
-    function getCookie(cname) {
-        let name = cname + "=";
-        let decodedCookie = decodeURIComponent(document.cookie);
-        let ca = decodedCookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) === 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-    }
 
     function showSpinner() {
         document.getElementById("loadingSpinner").style.display = 'block'
@@ -631,24 +498,6 @@
         }
     }
 
-    function add_title_buttons() {
-        const titles = document.getElementsByClassName("kanban-title-board");
-        if (titles.length === 0) {
-            return;
-        }
-
-        for (var column = 0; column < titles.length; column++) {
-            var currentColumn = titles[column];
-            if (currentColumn.innerHTML.includes('button-add-item')) {
-                continue;
-            }
-
-            let boardId = currentColumn.parentElement.parentElement.dataset.id;
-            let buttonAddText = "<button type=\"button\" class=\"button-add-item btn bg-success text-white btn-sm ms-2\" onclick=\"spawnTitlePrompt('" + boardId + "')\">+</button>";
-            currentColumn.innerHTML = currentColumn.innerHTML + buttonAddText;
-        }
-    }
-
     function spawnTitlePrompt(boardId) {
         document.getElementById("newNoteTitleField").value = "";
         document.getElementById("newNoteBodyField").value = "";
@@ -778,16 +627,10 @@
             el.addEventListener("click", function () {
                 spawnTitlePrompt(el.parentElement.parentElement.dataset.id);
             });
-            moveUp(el);
+            moveElementUp(el);
         });
         apply_colors();
         rowatize();
-    }
-
-    function setCookies() {
-        setCookie("configNoteId", window.configNoteId, 365);
-        setCookie("joplinToken", window.token, 365);
-        setCookie("joplinPort", window.port_number, 365);
     }
 
     function getConfigNote() {
