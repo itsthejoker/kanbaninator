@@ -79,4 +79,13 @@ export class Joplin {
             })
         )
     }
+
+    validateConnection() {
+        try {
+            getFolders();
+        } catch (error) {
+            return false
+        }
+        return true
+    }
 }

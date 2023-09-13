@@ -1,34 +1,70 @@
-import { Modal } from 'bootstrap';
+import {Modal} from 'bootstrap';
+import {createColorFormInputs} from "./utils";
 
 const modalHTML = `
 <template>
-    <div class="modal modal-lg" id="exampleModal" data-bs-keyboard="false" tabindex="-1"
-        aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal modal-lg" id="{AAA}Modal" data-bs-keyboard="false" tabindex="-1"
+        aria-labelledby="{AAA}ModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="newPremadeModalLabel">Starting Template</h1>
+                    <h1 class="modal-title fs-5" id="{AAA}ModalLabel">Title</h1>
                 </div>
                 <div class="modal-body">
                 </div>
+                </div>
+                <div class="modal-footer">
             </div>
         </div>
     </div>
 </template>
 `
 
-class CustomModal {
-  constructor(elementId, options, bootstrapModalOptions) {
-    this._elementId = elementId;
-    this._bootstrapModalOptions = bootstrapModalOptions;
-    this._options = options;
-    this.template = new DOMParser().parseFromString(modalHTML, 'text/html').querySelector('template');
-    const clone = this.template.content.cloneNode(true);
-    document.body.appendChild(clone);
-  }
+export class CustomModal {
+    constructor(modalId, options, bootstrapModalOptions) {
+        this.modalId = modalId;
+        this._bootstrapModalOptions = bootstrapModalOptions;
+        this._options = options;
+        this.template = new DOMParser().parseFromString(
+            modalHTML.replaceAll("{AAA}", this.modalId), 'text/html'
+        ).querySelector('template');
+        this.modal = this.template.content.cloneNode(true);
+        document.body.appendChild(this.modal);
+        this.boostrapEl = new Modal(this.modal, this._bootstrapModalOptions)
+    }
 
-  // Custom methods
-  buildModal() {
-    return new Modal(this._element, this._options);
-  }
+    // Custom methods
+    show() {
+        this.boostrapEl.show();
+    }
+
+    hide() {
+        this.boostrapEl.hide();
+    }
+
+    setTitle(title) {
+        this.modal.querySelector(".modal-title").innerText = title;
+    }
+
+    addColors(elementId) {
+        this.colors = createColorFormInputs(elementId);
+        this.modal.querySelector(".modal-body").appendChild(document.createElement("hr"));
+        this.modal.querySelector(".modal-body").appendChild(this.colors);
+    }
+
+    resetColors() {
+        if (this.colors !== undefined) {
+            this.colors.querySelectorAll("input").forEach((input) => {
+            input.checked = false;
+        });
+        }
+    }
+
+    setBody(html) {
+        this.modal.querySelector(".modal-body").innerHTML = html;
+    }
+
+    setFooter(html) {
+        this.modal.querySelector(".modal-footer").innerHTML = html;
+    }
 }

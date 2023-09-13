@@ -1,3 +1,5 @@
+import {colorClassValues} from "./constants.js";
+
 // https://www.w3schools.com/js/js_cookies.asp
 export function setCookie(cname, cvalue, exdays) {
     const d = new Date();
@@ -41,4 +43,28 @@ export function moveElementUp(elem) {
     var parentElem = elem.parentElement;
     var elemIndex = Array.prototype.indexOf.call(parentElem.children, elem);
     parentElem.insertBefore(elem, parentElem.children[elemIndex - 1]);
+}
+
+export function createColorFormInputs(elementId) {
+    const base = document.createElement("div");
+    base.classList.add("text-center");
+    colorClassValues.forEach((colorClassValue) => {
+        const container = document.createElement("div");
+        container.classList.add("form-check", "form-check-inline");
+
+        const input = document.createElement("input");
+        input.type = "radio";
+        input.name = `${elementId}-color`;
+        input.value = colorClassValue;
+        input.id = `${colorClassValue}-radio`;
+        input.classList.add("form-check-input");
+        input.autocomplete = "off";
+        const label = document.createElement("label");
+        label.classList.add("form-check-label", colorClassValue, "colorbox");
+        label.htmlFor = colorClassValue;
+        label.appendChild(input);
+        container.appendChild(label);
+        base.appendChild(container);
+    });
+    return base;
 }
