@@ -3,6 +3,7 @@ export class Joplin {
         this.configNoteId = configNoteId;
         this.rootFolder = rootFolder;
         this.token = token;
+        this.auth_token = null;
         this.port_number = port_number;
         this.urlBase = `http://127.0.0.1:${this.port_number}`
     }
@@ -17,11 +18,17 @@ export class Joplin {
     }
 
     getNoteById(id) {
+        let data = {}
         axios.get(this._getURL(`/notes/${id}`, { fields: "body,title" }))
             .then(function (response) {
-                return response.data;
+                data = response.data;
             })
+            .catch(function (error) {
+                console.log(error);
+            })
+        return data;
     }
+
 
     updateNoteById(id, title, body) {
         axios.put(
@@ -87,5 +94,25 @@ export class Joplin {
             return false
         }
         return true
+    }
+
+    getAuthToken() {
+        // This is the first part of the authentication flow. We'll use this to get
+        // the real token that is used for all other requests.
+        axios.post(`http://127.0.0.1:${window.port_number}/auth`).then(function (response) {
+            this.auth_token = response.data.token;
+        })
+    }
+
+    checkAuthTokenAndGetRealToken() {
+        axios.get(`http://127.0.0.1:${window.port_number}/auth/check?auth_token=${window.auth_token}`)
+            .then(function (response) {
+                if (response.data.status === "waiting") {
+                    return false
+                } else {
+                    this.token = response.data.token;
+                    return true
+                }
+            })
     }
 }

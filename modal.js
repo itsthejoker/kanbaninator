@@ -1,5 +1,6 @@
-import {Modal} from 'bootstrap';
-import {createColorFormInputs} from "./utils";
+// import {Modal} from './static/vendored/bootstrap.min.js';
+import * as bootstrap from './static/vendored/bootstrap.min.js';
+import {createColorFormInputs} from "./utils.js";
 
 const modalHTML = `
 <template>
@@ -30,7 +31,7 @@ export class CustomModal {
         ).querySelector('template');
         this.modal = this.template.content.cloneNode(true);
         document.body.appendChild(this.modal);
-        this.boostrapEl = new Modal(this.modal, this._bootstrapModalOptions)
+        this.boostrapEl = new bootstrap.Modal(this.modal, this._bootstrapModalOptions)
     }
 
     // Custom methods

@@ -1,6 +1,7 @@
 import { Joplin } from "./joplin.js";
-import { CustomModal } from "./modal";
+import { CustomModal } from "./modal.js";
 import Spinner from "./spinner.js";
+import { getCookie } from "./utils.js";
 console.log("hi");
 
 const spinner = new Spinner();
@@ -38,7 +39,20 @@ startModal.setBody(
 );
 startModal.setTitle("Joplin Kanbaninator");
 startModal.setFooter(
-    `<button type="button" class="btn btn-primary" onclick="joplin.validateConnection()">Authenticate</button>`
+    `<button type="button" class="btn btn-primary" onclick="
+        (function(){
+            let port_number = document.getElementById('joplin_port_number').nextElementSibling.value;
+            if (!(window.isNaN(port_number))) {
+                spinner.show();
+                startModal.hide();
+                joplin = new Joplin(null, null, null, port_number);
+            } else {
+                let errorp = document.getElementById('portNumberError');
+                errorp.style.display = 'block';
+                errorp.textContent = 'That\\'s not a number. Please put in a port number.'
+            }
+        })();
+    ">Authenticate</button>`
 );
 
 const folderModal = new CustomModal("folder");
@@ -104,3 +118,34 @@ editNoteModal.setFooter(
             )();"
     >Save changes</button>`
 )
+
+function getConfigDataFromNote(body) {
+    const config = body.split('\n');
+    const firstIndex = config.findIndex(element => element === '```json');
+    const lastIndex = config.findLastIndex(element => element === '```');
+    let data = config.slice(firstIndex + 1, lastIndex).join('');
+    return JSON.parse(data);
+}
+
+const joplinToken = getCookie("joplinToken");
+const joplinPort = getCookie("joplinPort");
+const params = new URLSearchParams(window.location.search);
+console.log(joplinToken, joplinPort, params.get("configNoteId"));
+
+if (joplinToken && joplinPort) {
+    window.token = joplinToken;
+    window.port_number = joplinPort;
+
+    if (params.get("configNoteId")) {
+        window.rootFolder = params.get("rootFolder");
+        window.configNoteId = params.get("configNoteId");
+        const configNoteData = joplin.getNoteById(window.configNoteId)
+        const configData = getConfigDataFromNote(configNoteData.body);
+        console.log(configData)
+    }
+
+    getFolders();
+    folderModal.show();
+} else {
+    startModal.show();
+}

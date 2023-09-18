@@ -26,7 +26,7 @@
             </div>
         </div>
     </div>
-</div
+</div>
 
 <!-- New Note Modal -->
 <div class="modal modal-lg" id="newNoteModal" data-bs-keyboard="false" tabindex="-1"
@@ -140,7 +140,7 @@
     </div>
 </div>
 
-<script type="module" src="static/main.js"></script>
+<script type="module" src="main.js"></script>
 
 <script src="static/vendored/axios.min.js"></script>
 <script src="static/vendored/bootstrap.min.js"></script>
@@ -610,7 +610,7 @@
         axios.get(`http://127.0.0.1:${window.port_number}/auth/check?auth_token=${window.auth_token}`)
             .then(function (response) {
                 if (response.data.status === "waiting") {
-                    return
+                    return false
                 } else {
                     window.token = response.data.token;
                     getFolders();
@@ -666,36 +666,36 @@
         })
     }
 
-    document.addEventListener("DOMContentLoaded", function (event) {
-        window.startModal = new bootstrap.Modal(document.getElementById('startModal'));
-        window.folderModal = new bootstrap.Modal(document.getElementById('folderModal'));
-        window.editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
-        window.newNoteModal = new bootstrap.Modal(document.getElementById('newNoteModal'));
-        window.premadeModal = new bootstrap.Modal(document.getElementById('newPremadeModal'));
-        window.titleModal = new bootstrap.Modal(document.getElementById('titleModal'));
-
-        const joplinToken = getCookie("joplinToken");
-        const joplinPort = getCookie("joplinPort");
-        const params = new URLSearchParams(window.location.search);
-        console.log(joplinToken, joplinPort, params.get("configNoteId"));
-        if (joplinToken && joplinPort) {
-            window.token = joplinToken;
-            window.port_number = joplinPort;
-
-            if (params.get("configNoteId")) {
-                window.rootFolder = params.get("rootFolder");
-                window.configNoteId = params.get("configNoteId");
-                getFolders();
-                getConfigNote();
-                return
-            }
-
-            getFolders();
-            window.folderModal.show();
-        } else {
-            window.startModal.show();
-        }
-    });
+    // document.addEventListener("DOMContentLoaded", function (event) {
+    //     window.startModal = new bootstrap.Modal(document.getElementById('startModal'));
+    //     window.folderModal = new bootstrap.Modal(document.getElementById('folderModal'));
+    //     window.editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
+    //     window.newNoteModal = new bootstrap.Modal(document.getElementById('newNoteModal'));
+    //     window.premadeModal = new bootstrap.Modal(document.getElementById('newPremadeModal'));
+    //     window.titleModal = new bootstrap.Modal(document.getElementById('titleModal'));
+    //
+    //     const joplinToken = getCookie("joplinToken");
+    //     const joplinPort = getCookie("joplinPort");
+    //     const params = new URLSearchParams(window.location.search);
+    //     console.log(joplinToken, joplinPort, params.get("configNoteId"));
+    //     if (joplinToken && joplinPort) {
+    //         window.token = joplinToken;
+    //         window.port_number = joplinPort;
+    //
+    //         if (params.get("configNoteId")) {
+    //             window.rootFolder = params.get("rootFolder");
+    //             window.configNoteId = params.get("configNoteId");
+    //             getFolders();
+    //             getConfigNote();
+    //             return
+    //         }
+    //
+    //         getFolders();
+    //         window.folderModal.show();
+    //     } else {
+    //         window.startModal.show();
+    //     }
+    // });
 </script>
 </body>
 </html>
