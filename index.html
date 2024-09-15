@@ -9,7 +9,7 @@
 </head>
 <body class="">
 <!-- Spinner -->
-<div id="loadingSpinner" style="display: none">
+<div id="loadingSpinnerContainer" style="display: none">
     <h2 class="text-center mt-5">Please check Joplin to accept the connection.</h2>
     <img id="loadingSpinner"
         class="position-absolute top-50 start-50 translate-middle"
@@ -17,7 +17,7 @@
     >
 </div>
 
-<!-- StartModal -->
+<!-- Start Modal -->
 <div class="modal modal-lg" id="startModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
      aria-labelledby="startModelLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -60,7 +60,7 @@
     </div>
 </div>
 
-<!-- FolderModal -->
+<!-- Folder Modal -->
 <div class="modal modal-lg" id="folderModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
      aria-labelledby="folderModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -82,7 +82,7 @@
     </div>
 </div>
 
-<!-- TitleModal -->
+<!-- Title Modal -->
 <div class="modal modal-lg" id="titleModal" tabindex="-1"
      aria-labelledby="titleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
@@ -282,10 +282,40 @@
                 </p>
                 <div class="d-grid gap-2">
                     <div class="btn btn-primary" onclick="templateHerosJourney()">The Hero's Journey</div>
+                    <p>
+                        The Hero's Journey is a narrative template that was developed by Joseph Campbell
+                        in his book <em>The Hero with a Thousand Faces</em>. It is a common template used
+                        in storytelling that involves a hero going on an adventure, facing and overcoming
+                        a crisis, and then returning home transformed.
+                    </p>
+                    <div class="btn btn-primary" onclick="templateHeroinesJourney()">The Heroine's Journey</div>
+                    <p>
+                        In storytelling, the heroine's journey is a female-centric version
+                        of the hero's journey template developed and inspired by various
+                        authors who felt that the Hero's Journey did not fully encompass
+                        the journey that a female protagonist goes through in a story.
+                    </p>
                     <div class="btn btn-primary" onclick="templateThreeActStructure()">Three-Act Structure</div>
+                    <p>
+                        The three-act structure is a model used in narrative fiction that divides a story
+                        into three parts (acts), often called the Setup, the Confrontation, and the Resolution.
+                    </p>
                     <div class="btn btn-primary" onclick="templateSaveTheCat()">Save the Cat</div>
+                    <p>
+                        <em>Save the Cat!</em> is a screenwriting book by Blake Snyder that describes the
+                        classic story beats that most successful movies follow. It's a great template
+                        for structuring your story.
+                    </p>
                     <div class="btn btn-primary" onclick="templateRomancingTheBeat()">Romancing the Beat</div>
+                    <p>
+                        <em>Romancing the Beat</em> is a romance-specific story beat template developed by
+                        Gwen Hayes.
+                    </p>
                     <div class="btn btn-primary" onclick="templateJamiGoldRomanceBeats()">Jami Gold's Romance Beats</div>
+                    <p>
+                        Jami Gold is a romance author who has developed a set of story beats specifically
+                        for romance novels.
+                    </p>
                 </div>
             </div>
         </div>
@@ -443,11 +473,11 @@
     }
 
     function showSpinner() {
-        document.getElementById("loadingSpinner").style.display = 'block'
+        document.getElementById("loadingSpinnerContainer").style.display = 'block'
     }
 
     function hideSpinner() {
-        document.getElementById("loadingSpinner").style.display = 'none'
+        document.getElementById("loadingSpinnerContainer").style.display = 'none'
     }
 
     function validatePort() {
@@ -528,6 +558,20 @@
             "Road Back",
             "Master of Two Worlds",
             "Ultimate Reward",
+        ])
+    }
+
+    function templateHeroinesJourney() {
+        buildTemplate([
+            "The Illusion",
+            "Betrayal",
+            "The Awakening",
+            "The Descent",
+            "Eye of the Storm",
+            "All is Lost",
+            "Support",
+            "Moment of Truth",
+            "The Return",
         ])
     }
 
