@@ -1,0 +1,798 @@
+/* Kanban board styles */
+.kanban-item:hover {
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transform: translateY(-2px);
+  transition: all 0.2s ease;
+}
+
+.kanban-board-header:hover {
+  cursor: pointer;
+}
+
+.kanban-item {
+  border-radius: 10px;
+  transition: all 0.2s ease;
+  margin-bottom: 10px;
+  word-break: break-word;
+}
+
+.kanban-item:focus {
+  outline: 2px solid #007bff;
+  box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+.kanban-board {
+  background-color: white !important;
+  margin-bottom: 15px;
+  border-radius: 10px;
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .kanban-item {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .kanban-board-header {
+    padding: 15px 10px;
+  }
+
+  .modal-dialog {
+    margin: 10px;
+  }
+}
+
+/* Responsive fixes for kanban board */
+.kanban-container {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+@media (max-width: 767px) {
+  .kanban-container {
+    flex-direction: column !important;
+  }
+
+  .kanban-board {
+    width: 100% !important;
+    margin-bottom: 1rem !important;
+  }
+}
+
+/* Color Picker Styles */
+.color-picker-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+  margin: 15px 0;
+}
+
+.color-option {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.color-option.selected {
+  border-color: #000;
+  transform: scale(1.1);
+}
+
+.dark-mode .color-option.selected {
+  border-color: #fff;
+}
+
+.color-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  cursor: pointer;
+}
+
+.color-option::after {
+  content: "✓";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(0, 0, 0, 0.7);
+  font-weight: bold;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.dark-mode .color-option::after {
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.color-option.selected::after {
+  opacity: 1;
+}
+
+/* Keep legacy colorbox style for compatibility */
+.colorbox {
+  border-style: solid;
+  border-width: 1px;
+  border-color: black;
+  height: 23px;
+  width: 23px;
+  display: none;
+}
+
+.kanban-title-button, .button-add-item {
+  border-color: darkgray;
+  border-width: 1px;
+  cursor: pointer;
+}
+
+.button-add-item {
+  border-radius: 4px;
+  width: 28px;
+  height: 28px;
+  line-height: 0.8;
+  padding: 0 0 3px 0; /* Adjust vertical centering with bottom padding */
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin-left: 5px;
+  text-align: center;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  top: -1px; /* Fine-tune vertical alignment */
+}
+
+.kanban-board-header, .kanban-drag {
+  background-color: #e2e4e6;
+}
+
+.kanban-board-header {
+  border-radius: 10px 10px 0 0;
+}
+
+.kanban-drag {
+  border-radius: 0 0 10px 10px;
+}
+
+.kanban-title-button:hover {
+  border-color: darkgreen;
+  background-color: green;
+}
+
+.kanban-title-board {
+  margin-right: 10px !important;
+}
+
+.restOfPage {
+  background-color: #eee;
+  overflow: scroll;
+}
+
+/* Color classes */
+.col1 {
+  background-color: rgba(68, 138, 255, 0.2);
+}
+
+.col2 {
+  background-color: rgba(0, 176, 255, 0.2);
+}
+
+.col3 {
+  background-color: rgba(83, 211, 230, 0.2);
+}
+
+.col4 {
+  background-color: rgba(0, 191, 165, 0.2);
+}
+
+.col5 {
+  background-color: rgba(0, 200, 83, 0.2);
+}
+
+.col6 {
+  background-color: rgba(100, 221, 23, 0.2);
+}
+
+.col7 {
+  background-color: rgba(255, 145, 0, 0.2);
+}
+
+.col8 {
+  background-color: rgba(255, 82, 82, 0.2);
+}
+
+.col9 {
+  background-color: rgba(255, 23, 68, 0.2);
+}
+
+.col10 {
+  background-color: rgba(101, 31, 255, 0.2);
+}
+
+.col11 {
+  background-color: rgba(159, 159, 159, 0.2);
+}
+
+.col12 {
+  background-color: rgba(255, 255, 255, 1);
+}
+
+/* Base transition for all elements */
+body, .kanban-board, .kanban-board-header, .kanban-drag, .kanban-item,
+.modal-content, .input-group-text, .form-control, .form-floating label,
+.modal-header, .modal-footer, .btn-close, .col1, .col2, .col3, .col4,
+.col5, .col6, .col7, .col8, .col9, .col10, .col11, .col12 {
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Modal Animation Styles - simplified to avoid conflicts */
+.modal {
+  transition: opacity 0.5s ease !important;
+}
+
+.modal.fade {
+  opacity: 0;
+  transition: opacity 0.4s ease-out !important;
+}
+
+.modal.show {
+  opacity: 1;
+}
+
+/* Only keep the basic dialog transitions that work reliably */
+.modal.fade .modal-dialog {
+  transform: scale(0.85) !important;
+  opacity: 0 !important;
+  transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important,
+  opacity 0.4s ease !important;
+}
+
+.modal.show .modal-dialog {
+  transform: scale(1) !important;
+  opacity: 1 !important;
+}
+
+.modal-backdrop.fade {
+  opacity: 0;
+  transition: opacity 0.4s ease !important;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5;
+}
+
+.modal-content {
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.25);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: transform 0.4s ease, box-shadow 0.4s ease, background-color 0.4s ease !important;
+}
+
+.dark-mode .modal-content {
+  box-shadow: 0 5px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* Custom entrance animations for specific modals */
+.modal.custom-animation.fade .modal-dialog {
+  transform: translateY(40px) scale(0.95) !important;
+  opacity: 0 !important;
+  transition: transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) !important, 
+              opacity 0.4s ease !important;
+}
+
+.modal.custom-animation.show .modal-dialog {
+  transform: translateY(0) scale(1) !important;
+  opacity: 1 !important;
+}
+
+/* Dark Mode Styles */
+.dark-mode {
+  background-color: #121212;
+  color: #e0e0e0;
+}
+
+.dark-mode .kanban-board {
+  background-color: #1e1e1e !important;
+}
+
+.dark-mode .kanban-board-header,
+.dark-mode .kanban-drag {
+  background-color: #2d2d2d;
+}
+
+.dark-mode .kanban-item {
+  color: #e0e0e0;
+}
+
+/* Context Menu Styles */
+.card-context-menu {
+  position: absolute;
+  z-index: 1000;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.25rem;
+  padding: 0.5rem 0;
+  min-width: 10rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  transition: top 0.15s ease-out, left 0.15s ease-out;
+}
+
+/* Style for menu positioned above click point */
+.card-context-menu.position-above::after {
+  content: '';
+  position: absolute;
+  bottom: -5px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 5px solid white;
+  filter: drop-shadow(0 2px 1px rgba(0,0,0,0.1));
+}
+
+/* Style for menu positioned in adjusted position */
+.card-context-menu.position-adjusted {
+  border-left: 3px solid #007bff;
+}
+
+/* Theme toggle button styles to ensure it stays visible */
+.theme-toggle {
+  position: fixed;
+  top: 15px;
+  right: 15px;
+  z-index: 1050; /* Higher than other elements */
+}
+
+#themeToggleBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+  background-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  border-radius: 20px;
+  padding: 0.375rem 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  color: #495057;
+}
+
+/* Light mode hover */
+#themeToggleBtn:hover {
+  transform: translateY(2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  background-color: rgba(240, 240, 240, 0.95);
+  color: #212529;
+  border-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Dark mode default and hover */
+.dark-mode #themeToggleBtn {
+  background-color: rgba(50, 50, 50, 0.85);
+  color: #e9ecef;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.dark-mode #themeToggleBtn:hover {
+  background-color: rgba(60, 60, 60, 0.9);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Active state for button in both modes */
+#themeToggleBtn:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.15);
+  transition: all 0.1s ease;
+}
+
+/* Focus styles for accessibility */
+#themeToggleBtn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.25);
+}
+
+/* Make theme toggle more visible on scroll */
+.scrolled #themeToggleBtn {
+  padding: 0.5rem 1rem;
+}
+
+/* Responsive styles for theme toggle */
+@media (max-width: 768px) {
+  #themeToggleBtn {
+    padding: 0.25rem 0.5rem;
+  }
+
+  #themeToggleBtn span {
+    display: none; /* Hide text on mobile, show only icon */
+  }
+
+  .scrolled #themeToggleBtn {
+    padding: 0.375rem 0.75rem;
+  }
+}
+
+.dark-mode .card-context-menu {
+  background-color: #2d2d2d;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.card-context-menu-item {
+  display: block;
+  width: 100%;
+  padding: 0.35rem 1.5rem;
+  clear: both;
+  text-align: left;
+  background: none;
+  border: 0;
+  white-space: nowrap;
+  text-decoration: none;
+  color: #212529;
+  cursor: pointer;
+}
+
+.dark-mode .card-context-menu-item {
+  color: #e0e0e0;
+}
+
+.card-context-menu-item:hover, .card-context-menu-item:focus {
+  background-color: rgba(0, 0, 0, 0.05);
+  text-decoration: none;
+}
+
+.dark-mode .card-context-menu-item:hover, .dark-mode .card-context-menu-item:focus {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.card-context-menu-item.danger {
+  color: #dc3545;
+}
+
+.dark-mode .card-context-menu-item.danger {
+  color: #f87c86;
+}
+
+.card-context-menu-divider {
+  height: 0;
+  margin: 0.5rem 0;
+  overflow: hidden;
+  border-top: 1px solid rgba(0, 0, 0, 0.15);
+}
+
+.dark-mode .card-context-menu-divider {
+  border: 1px solid #444;
+}
+
+/* Color submenu styles */
+.card-color-submenu {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  background-color: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 0.5rem;
+  padding: 12px;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-wrap: wrap;
+  width: 120px; /* 3 colors per row */
+  gap: 6px; /* Space between color options */
+  z-index: 1001;
+  max-height: 80vh; /* Prevent submenu from being taller than viewport */
+  overflow-y: auto; /* Add scrolling if needed */
+}
+
+/* Position submenu on the left when near right edge */
+.card-context-menu-item.color-picker-item.near-right .card-color-submenu {
+  left: auto;
+  right: 100%;
+}
+
+/* Position submenu above when near bottom edge */
+.card-context-menu-item.color-picker-item.near-bottom .card-color-submenu {
+  top: auto;
+  bottom: 0;
+}
+
+/* Special desktop positioning for bottom edge */
+@media (min-width: 769px) {
+  .card-context-menu-item.color-picker-item.near-bottom .card-color-submenu {
+    bottom: 0;
+    top: auto;
+  }
+
+  /* When both near bottom and right edge */
+  .card-context-menu-item.color-picker-item.near-bottom.near-right .card-color-submenu {
+    bottom: 0;
+    right: 100%;
+    left: auto;
+  }
+}
+
+/* Show an indicator line to connect submenu with its parent item */
+.card-context-menu-item.color-picker-item::after {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.card-context-menu-item.color-picker-item:hover::after {
+  opacity: 1;
+}
+
+/* Position indicator for different edge cases */
+.card-context-menu-item.color-picker-item:not(.near-right):not(.near-bottom):hover::after {
+  right: 0;
+  top: 50%;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-left: 6px solid rgba(0,0,0,0.15);
+  transform: translateX(100%) translateY(-50%);
+}
+
+.card-context-menu-item.color-picker-item.near-right:not(.near-bottom):hover::after {
+  left: 0;
+  top: 50%;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  border-right: 6px solid rgba(0,0,0,0.15);
+  transform: translateX(-100%) translateY(-50%);
+}
+
+/* Mobile responsive positioning for color submenu */
+@media (max-width: 768px) {
+  .card-color-submenu {
+    left: 0;
+    top: 100%;
+    width: 180px; /* Wider on mobile for better touch targets */
+  }
+
+  /* Handle edge cases when near screen edges */
+  .card-context-menu-item.color-picker-item.near-right .card-color-submenu {
+    right: 0;
+    left: auto;
+  }
+
+  .card-context-menu-item.color-picker-item.near-bottom .card-color-submenu {
+    bottom: 100%;
+    top: auto;
+  }
+
+  /* Make context menu more touch-friendly on mobile */
+  .card-context-menu {
+    min-width: 180px;
+  }
+
+  .card-context-menu-item {
+    padding: 0.5rem 1.5rem;
+    font-size: 16px;
+  }
+
+  /* Larger color options for touch */
+  .card-color-submenu .color-option {
+    width: 40px !important;
+    height: 40px !important;
+  }
+
+  /* Add visual indication that color picker can be tapped */
+  .card-context-menu-item.color-picker-item {
+    background-color: rgba(0, 0, 0, 0.03);
+  }
+
+  .dark-mode .card-context-menu-item.color-picker-item {
+    background-color: rgba(255, 255, 255, 0.05);
+  }
+}
+
+/* Dropdown arrow indicator */
+.color-menu-arrow {
+  font-size: 10px;
+  margin-left: 8px;
+  color: #6c757d;
+  transition: transform 0.2s ease;
+}
+
+/* Rotate arrow when hovered */
+.color-picker-item:hover .color-menu-arrow {
+  transform: rotate(90deg);
+  color: #212529;
+}
+
+/* Mobile specific arrow behavior */
+@media (max-width: 768px) {
+  /* Default down arrow rotates to up */
+  .color-picker-item:hover .color-menu-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* When near bottom, don't rotate the up arrow */
+  .color-picker-item.near-bottom:hover .color-menu-arrow {
+    transform: rotate(0);
+  }
+}
+
+/* Desktop arrow behavior for edge cases */
+@media (min-width: 769px) {
+  /* Default right arrow rotation on hover */
+  .color-picker-item:hover .color-menu-arrow {
+    transform: rotate(90deg);
+  }
+
+  /* Left arrow (near right edge) - initial state */
+  .color-picker-item.near-right .color-menu-arrow {
+    transform: rotate(180deg);
+  }
+
+  /* Left arrow rotation on hover (points up) */
+  .color-picker-item.near-right:hover .color-menu-arrow {
+    transform: rotate(270deg);
+  }
+}
+
+.dark-mode .card-color-submenu {
+  background-color: #2d2d2d;
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.dark-mode .submenu-header {
+  color: #e0e0e0;
+}
+
+.dark-mode .color-menu-arrow {
+  color: #adb5bd;
+}
+
+.dark-mode .color-picker-item:hover .color-menu-arrow {
+  color: #e0e0e0;
+}
+
+.card-context-menu-item:has(.card-color-submenu:hover) {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.dark-mode .card-context-menu-item:has(.card-color-submenu:hover) {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Enhance color options */
+.card-color-submenu .color-option {
+  border-radius: 6px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.card-color-submenu .color-option:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  z-index: 1;
+}
+
+/* Add checkmark to selected color */
+.card-color-submenu .color-option.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 18px;
+  font-weight: bold;
+  color: rgba(255, 255, 255, 0.9);
+  text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Improve submenu layout */
+.card-color-submenu {
+  justify-content: center;
+}
+
+.dark-mode .kanban-item:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.dark-mode .modal-content {
+  background-color: #2d2d2d;
+  color: #e0e0e0;
+}
+
+.dark-mode .input-group-text,
+.dark-mode .form-control {
+  background-color: #3d3d3d;
+  color: #e0e0e0;
+  border-color: #555;
+}
+
+.dark-mode .form-floating label {
+  color: #e0e0e0;
+  border-color: transparent;
+}
+
+.dark-mode .form-floating > .form-control:focus ~ label,
+.dark-mode .form-floating > .form-control:not(:placeholder-shown) ~ label,
+.dark-mode .form-floating > .form-select ~ label {
+  opacity: 0.65;
+  background-color: transparent;
+  transform: scale(0.85) translateY(-0.5rem) translateX(0.15rem);
+}
+
+.dark-mode .form-floating > textarea.form-control {
+  padding-top: 1.625rem;
+}
+
+.dark-mode .modal-header,
+.dark-mode .modal-footer {
+  border-color: #444;
+}
+
+.dark-mode .btn-close {
+  filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.dark-mode .col12 {
+  background-color: rgba(40, 40, 40, 1);
+}
+
+.dark-mode .col1 {
+  background-color: rgba(68, 138, 255, 0.15);
+}
+
+.dark-mode .col2 {
+  background-color: rgba(0, 176, 255, 0.15);
+}
+
+.dark-mode .col3 {
+  background-color: rgba(83, 211, 230, 0.15);
+}
+
+.dark-mode .col4 {
+  background-color: rgba(0, 191, 165, 0.15);
+}
+
+.dark-mode .col5 {
+  background-color: rgba(0, 200, 83, 0.15);
+}
+
+.dark-mode .col6 {
+  background-color: rgba(100, 221, 23, 0.15);
+}
+
+.dark-mode .col7 {
+  background-color: rgba(255, 145, 0, 0.15);
+}
+
+.dark-mode .col8 {
+  background-color: rgba(255, 82, 82, 0.15);
+}
+
+.dark-mode .col9 {
+  background-color: rgba(255, 23, 68, 0.15);
+}
+
+.dark-mode .col10 {
+  background-color: rgba(101, 31, 255, 0.15);
+}
+
+.dark-mode .col11 {
+  background-color: rgba(159, 159, 159, 0.15);
+}

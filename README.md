@@ -8,12 +8,41 @@ Start by creating an empty notebook. This is the 'root' of your kanban board. No
 
 You will also need to enable the Joplin Web Clipper service. Go to **Tools > Options > Web Clipper** and enable the service. Note what port it's running on -- you'll need that to connect in a minute.
 
-## Using the Thing
+## Using Kanbaninator
 
-In your browser, go to [https://itsthejoker.github.io/kanbaninator/](https://itsthejoker.github.io/kanbaninator/). It will ask you for the port first, then try to connect to Joplin.
+1. Visit [https://itsthejoker.github.io/kanbaninator/](https://itsthejoker.github.io/kanbaninator/) in your browser
+2. Enter the Joplin Web Clipper port number when prompted
+3. Authorize the connection in your Joplin app when requested
+4. Select the notebook you created as the root for your board
+5. Choose a template or start with a blank board
 
-If everything works, you'll next be presented with a graphical representation of all your notebooks. Select the one that you created as the root of your board. It will automatically detect the sub-notebooks and assign them as columns.
+### Working with Your Board
 
-Click any of the green buttons on top of the columns to create a new card - that card will automatically be created in the correct notebook. Moving a card between columns will also move the note in Joplin.
+- **Adding Cards**: Click the green "+" button on any column
+- **Editing Cards**: Click on any card to view or edit its contents
+- **Context Menu**: Right-click on any card for quick actions (edit, delete, change color, copy ID)
+- **Moving Cards**: Drag and drop cards between columns
+- **Changing Card Color**: Either use the context menu color picker for quick changes or select from 12 color options when editing a card
+- **Board Customization**: Click on the board title to rename it
 
-I wrote this for myself as a weekend project. I don't expect to provide long-term maintenance or really any kind of support. You're welcome to use it with your stuff, though!
+### Templates
+
+Kanbaninator includes several built-in templates for writers:
+
+- Hero's Journey
+- Heroine's Journey 
+- Three-Act Structure
+- Save the Cat
+- Romancing the Beat
+- Jami Gold's Romance Beats
+- Novelette Romance Beats
+
+## Development
+
+Kanbaninator is an open-source project built with vanilla JavaScript, Bootstrap, and the jKanban library. It communicates with your local Joplin instance through the Web Clipper API.
+
+Contributions and improvements are welcome!
+
+## License
+
+MIT License - Feel free to use, modify and distribute as needed.

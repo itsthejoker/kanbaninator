@@ -3,9 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kanban Test for Joplin</title>
+    <meta name="description" content="Kanban board interface for Joplin notes - organize your notes visually">
+    <meta name="theme-color" content="#007bff">
+    <title>Joplin Kanbaninator</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/static/icons/icon-192x192.png">
     <link rel="stylesheet" href="static/vendored/bootstrap.min.css">
     <link rel="stylesheet" href="static/vendored/jkanban.min.css">
+    <link rel="stylesheet" href="static/styles.css">
+    <style>
+        /* Critical modal animations - ensure they're loaded first */
+        .modal.fade .modal-dialog {
+            transform: scale(0.85) !important;
+            opacity: 0 !important;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important,
+                        opacity 0.4s ease !important;
+        }
+        .modal.show .modal-dialog {
+            transform: scale(1) !important;
+            opacity: 1 !important;
+        }
+        .modal.custom-animation.fade .modal-dialog {
+            transform: translateY(40px) scale(0.95) !important;
+            opacity: 0 !important;
+        }
+        .modal.custom-animation.show .modal-dialog {
+            transform: translateY(0) scale(1) !important;
+            opacity: 1 !important;
+        }
+    </style>
 </head>
 <body class="">
 <!-- Spinner -->
@@ -18,12 +44,12 @@
 </div>
 
 <!-- Start Modal -->
-<div class="modal modal-lg" id="startModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
-     aria-labelledby="startModelLabel" aria-hidden="true">
+<div class="modal modal-lg custom-animation" id="startModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="startModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="startModelLabel">Joplin Kanbaninator</h1>
+                <h1 class="modal-title fs-5" id="startModalLabel">Joplin Kanbaninator</h1>
             </div>
             <div class="modal-body">
                 <p>
@@ -61,7 +87,7 @@
 </div>
 
 <!-- Folder Modal -->
-<div class="modal modal-lg" id="folderModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+<div class="modal modal-lg custom-animation" id="folderModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
      aria-labelledby="folderModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -83,7 +109,7 @@
 </div>
 
 <!-- Title Modal -->
-<div class="modal modal-lg" id="titleModal" tabindex="-1"
+<div class="modal modal-lg custom-animation" id="titleModal" tabindex="-1"
      aria-labelledby="titleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -91,10 +117,9 @@
                 <h1 class="modal-title fs-5" id="titleModalLabel">Change Board Title</h1>
             </div>
             <div class="modal-body">
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="currentBoardTitle">Title</span>
-                    <input type="text" class="form-control" aria-label="Title of the board" id="boardTitleField"
-                           aria-describedby="currentBoardTitle">
+                <div class="mb-3">
+                    <label for="boardTitleField" class="form-label">Title</label>
+                    <input type="text" class="form-control" aria-label="Title of the board" id="boardTitleField">
                 </div>
             </div>
             <div class="modal-footer">
@@ -106,7 +131,7 @@
 </div>
 
 <!-- Edit Note Modal -->
-<div class="modal modal-lg" id="editNoteModal" tabindex="-1"
+<div class="modal modal-lg custom-animation" id="editNoteModal" tabindex="-1"
      aria-labelledby="editNoteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -115,67 +140,55 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="input-group mb-3">
-                    <span class="input-group-text" id="currentNoteTitle">Title</span>
-                    <input type="text" class="form-control" aria-label="Title of the note" id="noteTitleField"
-                           aria-describedby="currentNoteTitle">
+                <div class="mb-3">
+                    <label for="noteTitleField" class="form-label">Title</label>
+                    <input type="text" class="form-control" aria-label="Title of the note" id="noteTitleField">
                 </div>
                 <div class="form-floating">
                     <div id="currentNoteId" class="d-none"></div>
-                    <textarea class="form-control" placeholder="Leave a comment here" id="noteBodyField"
+                    <textarea class="form-control" placeholder="Note content..." id="noteBodyField"
                               style="height: 150px"></textarea>
                     <label for="noteBodyField">Note Body</label>
                 </div>
                 <hr>
-                <div class="text-center">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col1radio" value="col1">
-                        <label class="form-check-label col1 colorbox" for="col1radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col2radio" value="col2">
-                        <label class="form-check-label col2 colorbox" for="col2radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col3radio" value="col3">
-                        <label class="form-check-label col3 colorbox" for="col3radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col4radio" value="col4">
-                        <label class="form-check-label col4 colorbox" for="col4radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col5radio" value="col5">
-                        <label class="form-check-label col5 colorbox" for="col5radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col6radio" value="col6">
-                        <label class="form-check-label col6 colorbox" for="col6radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col7radio" value="col7">
-                        <label class="form-check-label col7 colorbox" for="col7radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col8radio" value="col8">
-                        <label class="form-check-label col8 colorbox" for="col8radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col9radio" value="col9">
-                        <label class="form-check-label col9 colorbox" for="col9radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col10radio" value="col10">
-                        <label class="form-check-label col10 colorbox" for="col10radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col11radio" value="col11">
-                        <label class="form-check-label col11 colorbox" for="col11radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="colorRadio" id="col12radio" value="col12" checked>
-                        <label class="form-check-label col12 colorbox" for="col12radio"></label>
-                      </div>
+                <p class="text-center mb-2">Card Color:</p>
+                <div class="color-picker-container">
+                    <div class="color-option col1" id="col1option">
+                        <input type="radio" name="colorRadio" id="col1radio" value="col1">
+                    </div>
+                    <div class="color-option col2" id="col2option">
+                        <input type="radio" name="colorRadio" id="col2radio" value="col2">
+                    </div>
+                    <div class="color-option col3" id="col3option">
+                        <input type="radio" name="colorRadio" id="col3radio" value="col3">
+                    </div>
+                    <div class="color-option col4" id="col4option">
+                        <input type="radio" name="colorRadio" id="col4radio" value="col4">
+                    </div>
+                    <div class="color-option col5" id="col5option">
+                        <input type="radio" name="colorRadio" id="col5radio" value="col5">
+                    </div>
+                    <div class="color-option col6" id="col6option">
+                        <input type="radio" name="colorRadio" id="col6radio" value="col6">
+                    </div>
+                    <div class="color-option col7" id="col7option">
+                        <input type="radio" name="colorRadio" id="col7radio" value="col7">
+                    </div>
+                    <div class="color-option col8" id="col8option">
+                        <input type="radio" name="colorRadio" id="col8radio" value="col8">
+                    </div>
+                    <div class="color-option col9" id="col9option">
+                        <input type="radio" name="colorRadio" id="col9radio" value="col9">
+                    </div>
+                    <div class="color-option col10" id="col10option">
+                        <input type="radio" name="colorRadio" id="col10radio" value="col10">
+                    </div>
+                    <div class="color-option col11" id="col11option">
+                        <input type="radio" name="colorRadio" id="col11radio" value="col11">
+                    </div>
+                    <div class="color-option col12" id="col12option">
+                        <input type="radio" name="colorRadio" id="col12radio" value="col12" checked>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -188,7 +201,7 @@
 </div>
 
 <!-- New Note Modal -->
-<div class="modal modal-lg" id="newNoteModal" data-bs-keyboard="false" tabindex="-1"
+<div class="modal modal-lg custom-animation" id="newNoteModal" data-bs-keyboard="false" tabindex="-1"
      aria-labelledby="newNoteModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -197,66 +210,54 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body">
-                <div class="input-group mb-3">
+                <div class="mb-3">
                     <div id="newNoteBoardId" class="d-none"></div>
-                    <span class="input-group-text" id="newNoteTitle">Title</span>
-                    <input type="text" class="form-control" aria-label="Title of the note" id="newNoteTitleField"
-                           aria-describedby="newNoteTitle">
+                    <label for="newNoteTitleField" class="form-label">Title</label>
+                    <input type="text" class="form-control" aria-label="Title of the note" id="newNoteTitleField">
                 </div>
-                <div class="form-floating">
-                    <textarea class="form-control" placeholder="Leave a comment here" id="newNoteBodyField"
+                <div class="form-floating mb-3">
+                    <textarea class="form-control" placeholder="Note content..." id="newNoteBodyField"
                               style="height: 150px"></textarea>
                     <label for="newNoteBodyField">Note Body</label>
                 </div>
-                <div class="text-center mt-2">
-                    <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol1radio" value="col1">
-                        <label class="form-check-label col1 colorbox" for="ncol1radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol2radio" value="col2">
-                        <label class="form-check-label col2 colorbox" for="ncol2radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol3radio" value="col3">
-                        <label class="form-check-label col3 colorbox" for="ncol3radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol4radio" value="col4">
-                        <label class="form-check-label col4 colorbox" for="ncol4radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol5radio" value="col5">
-                        <label class="form-check-label col5 colorbox" for="ncol5radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol6radio" value="col6">
-                        <label class="form-check-label col6 colorbox" for="ncol6radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol7radio" value="col7">
-                        <label class="form-check-label col7 colorbox" for="ncol7radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol8radio" value="col8">
-                        <label class="form-check-label col8 colorbox" for="ncol8radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol9radio" value="col9">
-                        <label class="form-check-label col9 colorbox" for="ncol9radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol10radio" value="col10">
-                        <label class="form-check-label col10 colorbox" for="ncol10radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol11radio" value="col11">
-                        <label class="form-check-label col11 colorbox" for="ncol11radio"></label>
-                      </div>
-                      <div class="form-check form-check-inline">
-                        <input class="form-check-input" type="radio" name="newColorRadio" id="ncol12radio" value="col12" checked>
-                        <label class="form-check-label col12 colorbox" for="ncol12radio"></label>
-                      </div>
+                <p class="text-center mb-2">Card Color:</p>
+                <div class="color-picker-container">
+                    <div class="color-option col1" id="ncol1option">
+                        <input type="radio" name="newColorRadio" id="ncol1radio" value="col1">
+                    </div>
+                    <div class="color-option col2" id="ncol2option">
+                        <input type="radio" name="newColorRadio" id="ncol2radio" value="col2">
+                    </div>
+                    <div class="color-option col3" id="ncol3option">
+                        <input type="radio" name="newColorRadio" id="ncol3radio" value="col3">
+                    </div>
+                    <div class="color-option col4" id="ncol4option">
+                        <input type="radio" name="newColorRadio" id="ncol4radio" value="col4">
+                    </div>
+                    <div class="color-option col5" id="ncol5option">
+                        <input type="radio" name="newColorRadio" id="ncol5radio" value="col5">
+                    </div>
+                    <div class="color-option col6" id="ncol6option">
+                        <input type="radio" name="newColorRadio" id="ncol6radio" value="col6">
+                    </div>
+                    <div class="color-option col7" id="ncol7option">
+                        <input type="radio" name="newColorRadio" id="ncol7radio" value="col7">
+                    </div>
+                    <div class="color-option col8" id="ncol8option">
+                        <input type="radio" name="newColorRadio" id="ncol8radio" value="col8">
+                    </div>
+                    <div class="color-option col9" id="ncol9option">
+                        <input type="radio" name="newColorRadio" id="ncol9radio" value="col9">
+                    </div>
+                    <div class="color-option col10" id="ncol10option">
+                        <input type="radio" name="newColorRadio" id="ncol10radio" value="col10">
+                    </div>
+                    <div class="color-option col11" id="ncol11option">
+                        <input type="radio" name="newColorRadio" id="ncol11radio" value="col11">
+                    </div>
+                    <div class="color-option col12" id="ncol12option">
+                        <input type="radio" name="newColorRadio" id="ncol12radio" value="col12" checked>
+                    </div>
                 </div>
             </div>
             <div class="modal-footer">
@@ -268,7 +269,7 @@
 </div>
 
 <!-- New Premade Modal -->
-<div class="modal modal-lg" id="newPremadeModal" data-bs-keyboard="false" tabindex="-1"
+<div class="modal modal-lg custom-animation" id="newPremadeModal" data-bs-keyboard="false" tabindex="-1"
      aria-labelledby="newPremadeModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
         <div class="modal-content">
@@ -333,747 +334,38 @@
     </div>
 </div>
 
-<style>
-    /* html, body {
-        height: 100%;
-        
-        display: flex;
-        flex-direction: column;
-    } */
-    .kanban-item:hover {
-        cursor: pointer;
-    }
-
-    .kanban-board-header:hover {
-        cursor: pointer;
-    }
-
-    .kanban-item {
-        border-radius: 10px;
-        /*background-color: #f0f0f0;*/
-    }
-
-    .kanban-board {
-        background-color: white !important;
-    }
-
-    .colorbox {
-        border-style: solid;
-        border-width: 1px;
-        border-color: black;
-        height: 23px;
-        width: 23px;
-    }
-    .kanban-title-button {
-        border-color: darkgray;
-        border-width: 1px;
-    }
-    .kanban-board-header, .kanban-drag {
-        background-color: #e2e4e6;
-    }
-    .kanban-board-header {
-        border-radius: 10px 10px 0 0;
-    }
-    .kanban-drag {
-        border-radius: 0 0 10px 10px;
-    }
-    .kanban-title-button:hover {
-        border-color: darkgreen;
-        background-color: green;
-    }
-    .kanban-title-board {
-        margin-right: 10px !important;
-    }
-    .restOfPage {
-        background-color: #eee;
-        overflow: scroll;
-    }
-    .col1 {
-        background-color: rgba(68,138,255,0.2);
-    }
-    .col2 {
-        background-color: rgba(0,176,255,0.2);
-    }
-    .col3 {
-        background-color: rgba(83,211,230,0.2);
-    }
-    .col4 {
-        background-color: rgba(0,191,165,0.2);
-    }
-    .col5 {
-        background-color: rgba(0,200,83,0.2);
-    }
-    .col6 {
-        background-color: rgba(100,221,23,0.2);
-    }
-    .col7 {
-        background-color: rgba(255,145,0,0.2);
-    }
-    .col8 {
-        background-color: rgba(255,82,82,0.2);
-    }
-    .col9 {
-        background-color: rgba(255,23,68,0.2);
-    }
-    .col10 {
-        background-color: rgba(101,31,255,0.2);
-    }
-    .col11 {
-        background-color: rgba(159,159,159,0.2);
-    }
-    .col12 {
-        background-color: rgba(255, 255, 255, 1);
-    }
-</style>
+<link rel="stylesheet" href="static/styles.css">
 
 <script src="static/vendored/axios.min.js"></script>
 <script src="static/vendored/bootstrap.min.js"></script>
 <script src="static/vendored/jkanban.min.js"></script>
 <script src="static/vendored/dom-autoscroller.min.js"></script>
 
-<script type="application/javascript">
-    // https://stackoverflow.com/a/13278323
-    console.logCopy = console.log.bind(console);
+<!-- Modular JS files -->
+<script src="static/utility-managers.js"></script>
+<script src="static/joplin-integration.js"></script>
+<script src="static/kanban-board.js"></script>
+<script src="static/context-menu.js"></script>
+<script src="static/color-picker.js"></script>
+<script src="static/modal-animations.js"></script>
+<script src="static/modal-manager.js"></script>
+<script src="static/template-manager.js"></script>
+<script src="static/accessibility.js"></script>
+<script src="static/app.js"></script>
 
-    const colorClassValues = [
-        "col1", "col2", "col3", "col4", "col5", "col6",
-        "col7", "col8", "col9", "col10", "col11", "col12"
-    ]
-
-    function moveUp(elem) {
-        // https://stackoverflow.com/a/68557752
-        var parentElem = elem.parentElement;
-        var elemIndex = Array.prototype.indexOf.call(parentElem.children, elem);
-        parentElem.insertBefore(elem, parentElem.children[elemIndex - 1]);
-    }
-
-    console.log = function (data) {
-        var timestamp = '[' + new Date().toLocaleString() + '] ';
-        this.logCopy(timestamp, data);
-    };
-
-    // https://www.w3schools.com/js/js_cookies.asp
-    function setCookie(cname, cvalue, exdays) {
-        const d = new Date();
-        d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-        let expires = "expires=" + d.toUTCString();
-        document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-    }
-
-    function getCookie(cname) {
-        let name = cname + "=";
-        let decodedCookie = decodeURIComponent(document.cookie);
-        let ca = decodedCookie.split(';');
-        for (let i = 0; i < ca.length; i++) {
-            let c = ca[i];
-            while (c.charAt(0) === ' ') {
-                c = c.substring(1);
-            }
-            if (c.indexOf(name) === 0) {
-                return c.substring(name.length, c.length);
-            }
-        }
-        return "";
-    }
-
-    function showSpinner() {
-        document.getElementById("loadingSpinnerContainer").style.display = 'block'
-    }
-
-    function hideSpinner() {
-        document.getElementById("loadingSpinnerContainer").style.display = 'none'
-    }
-
-    function validatePort() {
-        let port_number = document.getElementById("joplin_port_number").nextElementSibling.value;
-        if (!(window.isNaN(port_number))) {
-            window.port_number = port_number;
-            startLogin()
-        } else {
-            let errorp = document.getElementById("portNumberError");
-            errorp.style.display = 'block';
-            errorp.textContent = "That's not a number. Please put in a port number."
-            window.startModal.show();
-        }
-    }
-
-    function setProjectUrl() {
-        const url = new URL(window.location.href);
-        url.searchParams.set('configNoteId', window.configNoteId);
-        url.searchParams.set('rootFolder', window.rootFolder);
-        window.history.pushState({}, '', url);
-    }
-
-    function saveBoardState() {
-        let boardState = JSON.stringify(renderJSON(), null, 2);
-        boardState = (
-            "Quick link: https://itsthejoker.github.io/kanbaninator/?configNoteId=" + window.configNoteId + "&rootFolder=" + window.rootFolder
-            + "\n\n"
-            + "```json\n"
-            + boardState
-            + "\n```\n\n"
-            + "This note is automatically maintained by [Kanbaninator](https://itsthejoker.github.io/kanbaninator/)."
-        );
-        axios.put(`http://127.0.0.1:${window.port_number}/notes/${window.configNoteId}?token=${window.token}`, {body: boardState})
-    }
-
-    function createListElement(obj) {
-        let newListItem = document.createElement("li");
-        let newListItemButton = document.createElement('span');
-        let itemTitle = document.createElement('span');
-        newListItemButton.classList.add('badge', 'bg-primary', 'me-2', 'text-white');
-        newListItemButton.onclick = selectFolder;
-        newListItemButton.innerText = 'Select';
-        newListItemButton.style.cursor = 'pointer'
-        newListItem.setAttribute('data-joplin-id', obj.id);
-        newListItem.setAttribute('data-joplin-parent-id', obj.parent_id);
-        itemTitle.textContent = obj.title;
-        newListItem.appendChild(newListItemButton);
-        newListItem.appendChild(itemTitle);
-        return newListItem;
-    }
-
-    function buildTemplate(templateData) {
-        window.config = {title: "My Story", data: []};
-        templateData.forEach((title) => {
-            window.config.data.push({
-                "id": crypto.randomUUID(),
-                "title": title,
-                "item": []
-            })
-        })
-        buildKanbanBoard();
-        window.premadeModal.hide();
-        saveBoardState();
-    }
-
-    function templateHerosJourney() {
-        buildTemplate([
-            "Call to Adventure",
-            "Refusal of Call",
-            "Supernatural Aid/Mentor",
-            "Road of Trials",
-            "Crossing the Threshold",
-            "Death of Mentor",
-            "Ordeal",
-            "Temptation",
-            "Battle with the Brother",
-            "Refusal to Return",
-            "Road Back",
-            "Master of Two Worlds",
-            "Ultimate Reward",
-        ])
-    }
-
-    function templateHeroinesJourney() {
-        buildTemplate([
-            "The Illusion",
-            "Betrayal",
-            "The Awakening",
-            "The Descent",
-            "Eye of the Storm",
-            "All is Lost",
-            "Support",
-            "Moment of Truth",
-            "The Return",
-        ])
-    }
-
-    function templateRomancingTheBeat() {
-        buildTemplate([
-            "Setup: Introduce H1",
-            "Introduce H2",
-            "Meet Cute",
-            "No Way 1",
-            "Adhesion",
-            "Falling in Love: No Way 2",
-            "Inkling of Desire",
-            "Deepening Desire",
-            "Maybe This Could Work",
-            "Midpoint of Love",
-            "Retreating from Love: Inkling of Doubt",
-            "Deepening Doubt",
-            "Retreat Beat",
-            "Shields Up",
-            "Break Up",
-            "Fighting for Love: Dark Night",
-            "Wake Up",
-            "Grand Gesture",
-            "What Whole-Hearted Looks Like",
-            "Epilogue"
-        ])
-    }
-
-    function templateThreeActStructure() {
-        buildTemplate([
-            "Act 1: Beginning",
-            "Inciting Incident",
-            "Second Thoughts",
-            "Climax of Act 1",
-            "Act 2: Obstacle",
-            "Obstacle 2",
-            "Midpoint (Big Twist)",
-            "Obstacle 3",
-            "Disaster",
-            "Crisis",
-            "Climax of Act 2",
-            "Act 3: Climax",
-            "Wrap-up",
-            "End"
-        ])
-    }
-
-    function templateSaveTheCat() {
-        buildTemplate([
-            "Act 1: Opening Image",
-            "Theme Stated",
-            "Set-up",
-            "Catalyst",
-            "Debate",
-            "Act 2: B Story",
-            "Fun and Games",
-            "Midpoint",
-            "Bad Guys Close In",
-            "All is Lost",
-            "Dark Night of the Soul",
-            "Act 3: Finale",
-            "Final Image"
-        ])
-    }
-
-    function templateJamiGoldRomanceBeats() {
-        buildTemplate([
-            "Act 1: Opening Hook",
-            "Inciting Incident",
-            "End of the Beginning",
-            "Act 2: Pinch Point 1",
-            "Midpoint",
-            "Pinch Point 2",
-            "Crisis",
-            "Act 3: Climax",
-            "Final Resolution"
-        ])
-    }
-
-    function templateShortStoryRomance() {
-        buildTemplate([
-            "Intro to H1 & H2 ",
-            "Meet Cute",
-            "Falling in Love (First Kiss)",
-            "Internal Conflict",
-            "Falling in Love (Intimacy)",
-            "Dark Moment",
-            "Resolution / Wakeup",
-            "HEA / Grand Gesture",
-        ])
-    }
-
-    function populateFolderModal() {
-        const bigList = document.getElementById("folderList");
-        let folderArray = [...window.folders];
-
-        while (folderArray.length) {
-            folderArray.forEach((folder) => {
-                if (folder.parent_id === '') {
-                    bigList.appendChild(createListElement(folder))
-                    folderArray = folderArray.filter(temp => temp.id !== folder.id);
-                } else {
-                    try {
-                        let target = document.querySelector(`[data-joplin-id="${folder.parent_id}"]`);
-                        let newUL = document.createElement('ul');
-                        newUL.appendChild(createListElement(folder));
-                        target.appendChild(newUL);
-                        folderArray = folderArray.filter(temp => temp.id !== folder.id);
-                    } catch (error) {
-                        // continue, we'll pass it on the next iteration
-                    }
-                }
-            })
-        }
-    }
-
-    function add_title_buttons() {
-        const titles = document.getElementsByClassName("kanban-title-board");
-        if (titles.length === 0) {
-            return;
-        }
-
-        for (var column = 0; column < titles.length; column++) {
-            var currentColumn = titles[column];
-            if (currentColumn.innerHTML.includes('button-add-item')) {
-                continue;
-            }
-
-            let boardId = currentColumn.parentElement.parentElement.dataset.id;
-            let buttonAddText = "<button type=\"button\" class=\"button-add-item btn bg-success text-white btn-sm ms-2\" onclick=\"spawnTitlePrompt('" + boardId + "')\">+</button>";
-            currentColumn.innerHTML = currentColumn.innerHTML + buttonAddText;
-        }
-    }
-
-    function spawnTitlePrompt(boardId) {
-        document.getElementById("newNoteTitleField").value = "";
-        document.getElementById("newNoteBodyField").value = "";
-        document.getElementById("newNoteBoardId").textContent = boardId;
-        window.newNoteModal.show()
-    }
-
-    function deleteNote() {
-        let noteId = document.getElementById('currentNoteId').textContent;
-        if (confirm("Delete this note?") === true) {
-            axios.delete(
-                `http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}`
-            ).then(function (response) {
-                window.kanban.removeElement(noteId);
-                console.log(`Deleted note ${noteId}`);
-                window.editModal.hide()
-            })
-        }
-    }
-
-    function apply_colors() {
-        Array.from(document.getElementsByClassName("kanban-item")).forEach(el => {
-            let colorClass = el.dataset.colorclass;
-            el.classList.remove(...colorClassValues);
-            el.classList.add(colorClass);
-        })
-    }
-
-    function add_item() {
-        window.newNoteModal.hide();
-        let title = document.getElementById("newNoteTitleField").value;
-        let body = document.getElementById("newNoteBodyField").value;
-        let boardId = document.getElementById("newNoteBoardId").textContent;
-        
-
-        let postData = {
-            parent_id: window.rootFolder,
-            title: title,
-            body: body
-        }
-
-        let colorClass = "";
-
-        Array.from(document.getElementsByName("newColorRadio")).forEach(function (el) {
-            if (el.checked) {
-                colorClass = el.value;
-            }
-        })
-
-        axios.post(
-            `http://127.0.0.1:${window.port_number}/notes?token=${window.token}`,
-            postData
-        ).then(function (response) {
-            window.kanban.addElement(boardId, {
-                title: title,
-                id: response.data.id,
-                colorclass: colorClass
-            });
-            apply_colors();
-            saveBoardState();
-            console.log(`Created note ${response.data.id}`);
-        })
-    }
-
-    function renderJSON() {
-        let title = document.getElementById("boardTitle").textContent;
-        let boards = []
-        document.querySelectorAll('.kanban-board').forEach(el => {
-            let item = []
-            el.querySelectorAll('.kanban-item').forEach(i => {
-                item.push({
-                    title: i.childNodes[0].textContent,
-                    id: i.dataset.eid,
-                    colorClass: i.dataset.colorclass
+<script>
+    // Register service worker for offline support
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js')
+                .then(registration => {
+                    console.log('Service Worker registered with scope:', registration.scope);
                 })
-            })
-            boards.push({
-                id: el.getAttribute('data-id'),
-                title: el.querySelector('.kanban-title-board').innerHTML,
-                item,
-            })
-        })
-        return {
-            title: title,
-            data: boards
-        }
-    }
-
-    function buildKanbanBoard() {
-        document.getElementById("boardTitle").textContent = window.config.title;
-        window.kanban = new jKanban({
-            element: '#kanbanBoard',
-            boards: window.config.data,
-            dragBoards: false,
-            // responsivePercentage: true,
-            click: function (el) {
-                getNoteBodyById(el.dataset.eid);
-            },
-            dropEl: function (el, target, source, sibling) {
-                saveBoardState();
-            },
-            dragendBoard: function (el) {
-                saveBoardState();
-            },
-            itemAddOptions: {
-                enabled: true,                                              // add a button to board for easy item creation
-                content: '+',                                                // text or html content of the board button
-                class: 'button-add-item btn kanban-title-button text-white btn-xs',         // default class of the button
-                footer: false                                                // position the button on footer
-            },
-        })
-
-        autoScroll([
-                this
-            ],{
-                margin: 100,
-                maxSpeed: 50,
-                scrollWhenOutside: true,
-                autoScroll: function(){
-                    //Only scroll when the pointer is down, and there is a child being dragged.
-                    return this.down && window.kanban.drake.dragging;
-                }
-            }
-        );
-
-        Array.from(document.getElementsByClassName("button-add-item")).forEach(el => {
-            el.addEventListener("click", function () {
-                spawnTitlePrompt(el.parentElement.parentElement.dataset.id);
-            });
-            moveUp(el);
-        });
-        apply_colors();
-        rowatize();
-    }
-
-    function setCookies() {
-        setCookie("configNoteId", window.configNoteId, 365);
-        setCookie("joplinToken", window.token, 365);
-        setCookie("joplinPort", window.port_number, 365);
-    }
-
-    function getConfigNote() {
-        axios.get(
-            `http://127.0.0.1:${window.port_number}/notes/${window.configNoteId}?token=${window.token}&fields=body`
-        )
-            .then(function (response) {
-                try {
-                    window.config_note = response.data.body;
-                    window.config_note = window.config_note.split('\n');
-                    const firstIndex = window.config_note.findIndex(element => element === '```json');
-                    const lastIndex = window.config_note.findLastIndex(element => element === '```');
-                    let data = window.config_note.slice(firstIndex + 1, lastIndex).join('');
-                    window.config = JSON.parse(data);
-                    buildKanbanBoard();
-                    console.log("Found existing config & built board.");
-                    window.folderModal.hide();
-                    setCookies();
-                    setProjectUrl();
-                } catch (error) {
-                    console.log("Found config, but cannot load. Error:");
-                    console.log(error)
-                }
-            })
-    }
-    
-    function showTitleModal() {
-        window.titleModal.show();
-    }
-
-    function hideTitleModal() {
-        window.titleModal.hide();
-    }
-
-    function updateBoardTitle () {
-        let newTitle = document.getElementById("boardTitleField").value;
-        document.getElementById("boardTitle").textContent = newTitle;
-        window.config.title = newTitle;
-        saveBoardState();
-        hideTitleModal();
-    }
-
-    function uncheckAllRadios() {
-        Array.from(document.getElementsByName("colorRadio")).forEach(function (el) {
-            el.checked = false;
-        })
-        Array.from(document.getElementsByName("newColorRadio")).forEach(function (el) {
-            el.checked = false;
-        })
-        
-    }
-
-    function getNoteBodyById(noteId) {
-        axios.get(
-            `http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}&fields=body,title`
-        )
-            .then(function (response) {
-                try {
-                    document.getElementById('currentNoteId').textContent = noteId;
-                    document.getElementById('noteTitleField').value = response.data.title;
-                    document.getElementById('noteBodyField').value = response.data.body;
-                    let currentColor = document.querySelector(`[data-eid="${noteId}"]`).dataset.colorclass;
-                    if (currentColor === undefined) {
-                        currentColor = "col12";
-                    }
-                    uncheckAllRadios();
-                    document.getElementById(currentColor + "radio").checked = true;
-                    document.getElementById("n" + currentColor + "radio").checked = true;
-                    window.editModal.show();
-                } catch (error) {
-                    console.log(`Found requested note ${noteId}, but cannot load body. Error:`);
-                    console.log(error)
-                }
-            })
-    }
-
-    function updateNoteBodyById() {
-        let noteId = document.getElementById('currentNoteId').textContent;
-        let noteTitle = document.getElementById('noteTitleField').value;
-        axios.put(
-            `http://127.0.0.1:${window.port_number}/notes/${noteId}?token=${window.token}`,
-            {
-                body: document.getElementById('noteBodyField').value,
-                title: noteTitle
-            }
-        );
-        let currentNote = document.querySelector(`[data-eid="${noteId}"]`);
-        if (currentNote.textContent !== noteTitle) {
-            currentNote.textContent = noteTitle
-        }
-        Array.from(document.getElementsByName("colorRadio")).forEach(function (el) {
-            if (el.checked) {
-                currentNote.classList.remove(...colorClassValues);
-                currentNote.classList.add(el.value);
-                currentNote.dataset.colorclass = el.value;
-            }
-        })
-        apply_colors();
-        window.editModal.hide();
-        console.log(`Edited note ${noteId}`);
-        saveBoardState();
-    }
-
-    function selectFolder() {
-        window.rootFolder = this.parentElement.dataset.joplinId
-        axios.get(
-            `http://127.0.0.1:${window.port_number}/folders/${window.rootFolder}/notes?token=${window.token}`
-        )
-            .then(function (response) {
-                response.data.items.forEach((note) => {
-                    if (note.title === ".kanbaninator") {
-                        window.configNoteId = note.id;
-                        getConfigNote();
-                    }
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
                 });
-                if (window.configNoteId === undefined) {
-                    // we didn't find a config note in this folder.
-                    let postData = {
-                        parent_id: window.rootFolder,
-                        title: ".kanbaninator",
-                        body: ""
-                    }
-
-                    axios.post(
-                        `http://127.0.0.1:${window.port_number}/notes?token=${window.token}`,
-                        postData
-                    ).then(function (response) {
-                        window.configNoteId = response.data.id;
-                    })
-                    window.folderModal.hide();
-                    window.premadeModal.show();
-                }
-            })
+        });
     }
-
-    function finishSetup() {
-        axios.get(`http://127.0.0.1:${window.port_number}/auth/check?auth_token=${window.auth_token}`)
-            .then(function (response) {
-                if (response.data.status === "waiting") {
-                    return
-                } else {
-                    window.token = response.data.token;
-                    getFolders();
-                    hideSpinner();
-                    window.folderModal.show();
-                    clearInterval(window.getKeyInterval);
-                }
-            })
-    }
-
-    function startLogin() {
-        axios.post(`http://127.0.0.1:${window.port_number}/auth`)
-            .then(function (response) {
-                // handle success
-                console.log(`auth success, received key ${response.data.auth_token}`);
-                window.auth_token = response.data.auth_token;
-                window.startModal.hide();
-                showSpinner();
-                window.getKeyInterval = setInterval(finishSetup, 500)
-            })
-            .catch(function (error) {
-                console.log(error);
-                let errorp = document.getElementById("portNumberError");
-                errorp.style.display = 'block';
-                errorp.textContent = "Something went wrong; is that the right port? Alternatively, is Web Clipper enabled?"
-                window.startModal.show();
-            })
-    }
-
-    function getFolders() {
-        // we may enter this with an invalid token, so we need to check for that.
-        axios.get(`http://127.0.0.1:${window.port_number}/folders?token=${window.token}`)
-            .then(function (response) {
-                window.folders = response.data.items;
-                populateFolderModal()
-            })
-            .catch(function (error) {
-                // we got an invalid token, so restart from the auth flow
-                window.startModal.show();
-            })
-    }
-    
-    function rowatize() {
-        let board = document.getElementsByClassName("kanban-container")[0];
-        board.classList.add("row", "g-2");
-        board.style.width = "";
-        Array.from(document.getElementsByClassName("kanban-board")).forEach(el => {
-            el.classList.add("col-12", "col-md-6", "col-lg-4", "col-xl-3", "p-3");
-            el.style.width = "";
-            el.style.margin = "0";
-            el.style.paddingLeft = "0";
-            el.style.paddingRight = "0";
-        })
-    }
-
-    document.addEventListener("DOMContentLoaded", function (event) {
-        window.startModal = new bootstrap.Modal(document.getElementById('startModal'));
-        window.folderModal = new bootstrap.Modal(document.getElementById('folderModal'));
-        window.editModal = new bootstrap.Modal(document.getElementById('editNoteModal'));
-        window.newNoteModal = new bootstrap.Modal(document.getElementById('newNoteModal'));
-        window.premadeModal = new bootstrap.Modal(document.getElementById('newPremadeModal'));
-        window.titleModal = new bootstrap.Modal(document.getElementById('titleModal'));
-
-        const joplinToken = getCookie("joplinToken");
-        const joplinPort = getCookie("joplinPort");
-        const params = new URLSearchParams(window.location.search);
-        console.log(joplinToken, joplinPort, params.get("configNoteId"));
-        if (joplinToken && joplinPort) {
-            window.token = joplinToken;
-            window.port_number = joplinPort;
-
-            if (params.get("configNoteId")) {
-                window.rootFolder = params.get("rootFolder");
-                window.configNoteId = params.get("configNoteId");
-                getFolders();
-                getConfigNote();
-                return
-            }
-
-            getFolders();
-            window.folderModal.show();
-        } else {
-            window.startModal.show();
-        }
-    });
 </script>
 </body>
 </html>
