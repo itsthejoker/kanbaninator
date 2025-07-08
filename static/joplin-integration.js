@@ -9,6 +9,8 @@ class JoplinIntegration {
         this.folders = null;
         this.config = null;
         this.getKeyInterval = null;
+        this.browserOnlyMode = false; // Flag to indicate if we're running in browser-only mode
+        this.noteBodies = {}; // Cache for note bodies
     }
 
     validatePort() {
@@ -170,11 +172,66 @@ class JoplinIntegration {
     }
 
     getNoteBodyById(noteId) {
+        // If we're in browser-only mode, we should only use cached data
+        if (this.browserOnlyMode) {
+            try {
+                document.getElementById('currentNoteId').textContent = noteId;
+
+                // Get the note element from the DOM
+                const noteElement = document.querySelector(`[data-eid="${noteId}"]`);
+
+                // Get the note title from the DOM if possible
+                const noteTitle = noteElement ? noteElement.childNodes[0].textContent : '';
+
+                // Get the note color from the DOM if possible
+                let currentColor = noteElement ? noteElement.dataset.colorclass : "col12";
+                if (currentColor === undefined) {
+                    currentColor = "col12";
+                }
+
+                // If we have the note in cache, use that data
+                if (this.noteBodies[noteId]) {
+                    document.getElementById('noteTitleField').value = this.noteBodies[noteId].title;
+                    document.getElementById('noteBodyField').value = this.noteBodies[noteId].body;
+                } else {
+                    // If not in cache, use the title from the DOM and an empty body
+                    console.warn(`Note ${noteId} not found in cache, using title from DOM and empty body`);
+                    document.getElementById('noteTitleField').value = noteTitle;
+                    document.getElementById('noteBodyField').value = '';
+
+                    // Create an entry in the cache for this note
+                    this.noteBodies[noteId] = {
+                        title: noteTitle,
+                        body: ''
+                    };
+                }
+
+                // Set the color radio buttons
+                window.modalManager.uncheckAllRadios();
+                document.getElementById(currentColor + "radio").checked = true;
+                document.getElementById("n" + currentColor + "radio").checked = true;
+
+                // Show the edit modal
+                window.modalManager.showEditModal();
+            } catch (error) {
+                console.error(`Error loading note ${noteId}:`, error);
+                alert("Error: Could not load note. Please try again.");
+            }
+            return;
+        }
+
+        // Only make API calls if we're not in browser-only mode
         axios.get(
             `http://127.0.0.1:${this.port_number}/notes/${noteId}?token=${this.token}&fields=body,title`
         )
             .then((response) => {
                 try {
+                    // Store the note body in cache
+                    this.noteBodies[noteId] = {
+                        title: response.data.title,
+                        body: response.data.body
+                    };
+
                     document.getElementById('currentNoteId').textContent = noteId;
                     document.getElementById('noteTitleField').value = response.data.title;
                     document.getElementById('noteBodyField').value = response.data.body;
@@ -206,6 +263,42 @@ class JoplinIntegration {
             }
         });
 
+        // If we're in browser-only mode, update the cache and UI directly
+        if (this.browserOnlyMode) {
+            // Update the cache
+            this.noteBodies[noteId] = {
+                title: noteTitle,
+                body: noteBody
+            };
+
+            // Update the UI
+            let currentNote = document.querySelector(`[data-eid="${noteId}"]`);
+            if (currentNote) {
+                if (currentNote.textContent !== noteTitle) {
+                    currentNote.textContent = noteTitle;
+                }
+
+                // Update color
+                currentNote.classList.remove(...window.kanbanBoard.colorClassValues);
+                currentNote.classList.add(selectedColor);
+                currentNote.dataset.colorclass = selectedColor;
+
+                // Make sure all colors are properly applied
+                window.kanbanBoard.apply_colors();
+
+                // Mark as having unsaved changes
+                if (window.exportImportManager) {
+                    window.exportImportManager.hasUnsavedChanges = true;
+                    window.exportImportManager.updateExportImportButton();
+                }
+            }
+
+            // Hide the edit modal
+            window.modalManager.hideEditModal();
+            console.log(`Edited note ${noteId} in browser-only mode`);
+            return;
+        }
+
         // Update the note in Joplin
         axios.put(
             `http://127.0.0.1:${this.port_number}/notes/${noteId}?token=${this.token}`,
@@ -214,6 +307,12 @@ class JoplinIntegration {
                 title: noteTitle
             }
         ).then(() => {
+            // Update the cache
+            this.noteBodies[noteId] = {
+                title: noteTitle,
+                body: noteBody
+            };
+
             // Update the UI
             let currentNote = document.querySelector(`[data-eid="${noteId}"]`);
             if (currentNote) {
@@ -232,9 +331,7 @@ class JoplinIntegration {
                 // Save board state
                 try {
                     if (typeof window.kanbanBoard.saveBoardState === 'function') {
-                            if (typeof window.kanbanBoard.saveBoardState === 'function') {
-                                window.kanbanBoard.saveBoardState();
-                            }
+                        window.kanbanBoard.saveBoardState();
                     } else {
                         console.warn('saveBoardState is not a function - board state not saved');
                     }
@@ -255,12 +352,43 @@ class JoplinIntegration {
     deleteNote() {
         let noteId = document.getElementById('currentNoteId').textContent;
         if (confirm("Delete this note?") === true) {
+            // If we're in browser-only mode, just remove the element from the UI
+            if (this.browserOnlyMode) {
+                // Remove from cache
+                if (this.noteBodies[noteId]) {
+                    delete this.noteBodies[noteId];
+                }
+
+                // Remove from UI
+                window.kanbanBoard.kanban.removeElement(noteId);
+
+                // Mark as having unsaved changes
+                if (window.exportImportManager) {
+                    window.exportImportManager.hasUnsavedChanges = true;
+                    window.exportImportManager.updateExportImportButton();
+                }
+
+                console.log(`Deleted note ${noteId} in browser-only mode`);
+                window.modalManager.hideEditModal();
+                return;
+            }
+
+            // Otherwise, delete from Joplin
             axios.delete(
                 `http://127.0.0.1:${this.port_number}/notes/${noteId}?token=${this.token}`
-            ).then(function (response) {
+            ).then(response => {
+                // Remove from cache
+                if (this.noteBodies[noteId]) {
+                    delete this.noteBodies[noteId];
+                }
+
+                // Remove from UI
                 window.kanbanBoard.kanban.removeElement(noteId);
                 console.log(`Deleted note ${noteId}`);
                 window.modalManager.hideEditModal();
+            }).catch(error => {
+                console.error(`Error deleting note ${noteId}:`, error);
+                alert("Error deleting note. Please try again.");
             });
         }
     }
@@ -278,12 +406,6 @@ class JoplinIntegration {
             return;
         }
 
-        let postData = {
-            parent_id: this.rootFolder,
-            title: title,
-            body: body
-        }
-
         let colorClass = "col12"; // Default color
 
         Array.from(document.getElementsByName("newColorRadio")).forEach(function (el) {
@@ -292,24 +414,73 @@ class JoplinIntegration {
             }
         });
 
+        // If we're in browser-only mode, create a note locally
+        if (this.browserOnlyMode) {
+            // Generate a unique ID for the note
+            const noteId = 'local-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+
+            // Store the note body in cache
+            this.noteBodies[noteId] = {
+                title: title,
+                body: body
+            };
+
+            // Add the note to the board
+            window.kanbanBoard.kanban.addElement(boardId, {
+                title: title,
+                id: noteId,
+                colorclass: colorClass
+            });
+
+            window.kanbanBoard.apply_colors();
+            // Reinitialize buttons after adding a new element
+            window.kanbanBoard.reinitButtons();
+
+            // Mark as having unsaved changes
+            if (window.exportImportManager) {
+                window.exportImportManager.hasUnsavedChanges = true;
+                window.exportImportManager.updateExportImportButton();
+            }
+
+            console.log(`Created local note ${noteId} in browser-only mode`);
+            return;
+        }
+
+        let postData = {
+            parent_id: this.rootFolder,
+            title: title,
+            body: body
+        }
+
+        const self = this; // Store reference to this for use in the callback
+
         axios.post(
             `http://127.0.0.1:${this.port_number}/notes?token=${this.token}`,
             postData
         ).then(function (response) {
+            const noteId = response.data.id;
+
+            // Store the note body in cache
+            self.noteBodies[noteId] = {
+                title: title,
+                body: body
+            };
+
             window.kanbanBoard.kanban.addElement(boardId, {
                 title: title,
-                id: response.data.id,
+                id: noteId,
                 colorclass: colorClass
             });
+
             window.kanbanBoard.apply_colors();
             // Reinitialize buttons after adding a new element
             window.kanbanBoard.reinitButtons();
+
             if (typeof window.kanbanBoard.saveBoardState === 'function') {
-                    if (typeof window.kanbanBoard.saveBoardState === 'function') {
-                        window.kanbanBoard.saveBoardState();
-                    }
+                window.kanbanBoard.saveBoardState();
             }
-            console.log(`Created note ${response.data.id}`);
+
+            console.log(`Created note ${noteId}`);
         });
     }
 }

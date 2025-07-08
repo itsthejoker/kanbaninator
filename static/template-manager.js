@@ -9,7 +9,30 @@ class TemplateManager {
                 "item": []
             })
         })
+
+        // Clear existing kanban board if it exists
+        if (window.kanbanBoard.kanban) {
+            // Remove the entire kanban container to prevent duplicates
+            const kanbanContainer = document.querySelector('.kanban-container');
+            if (kanbanContainer && kanbanContainer.parentNode) {
+                kanbanContainer.parentNode.removeChild(kanbanContainer);
+            }
+
+            // Also clear the kanbanBoard element to ensure a clean slate
+            const kanbanBoard = document.getElementById('kanbanBoard');
+            if (kanbanBoard) {
+                kanbanBoard.innerHTML = '';
+            }
+        }
+
         window.kanbanBoard.init(window.joplinIntegration.config);
+
+        // Reset the unsaved changes flag since we're starting with a fresh template
+        if (window.joplinIntegration.browserOnlyMode && window.exportImportManager) {
+            window.exportImportManager.hasUnsavedChanges = false;
+            window.exportImportManager.updateExportImportButton();
+        }
+
         window.modalManager.hidePremadeModal();
         if (typeof window.kanbanBoard.saveBoardState === 'function') {
             window.kanbanBoard.saveBoardState();

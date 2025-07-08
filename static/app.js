@@ -1,5 +1,66 @@
+// Function to add navbar
+function addNavbar() {
+    // Create navbar element
+    const navbar = document.createElement('nav');
+    navbar.className = 'navbar navbar-expand-lg navbar-dark bg-dark';
+    navbar.innerHTML = `
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Joplin Kanbaninator</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <!-- Export/Import button will be added here -->
+                <li class="nav-item d-flex align-items-center me-2" id="exportImportButtonContainer"></li>
+                <!-- Dark mode toggle will be added here -->
+                <li class="nav-item d-flex align-items-center ms-2" id="darkModeToggleContainer"></li>
+            </ul>
+        </div>
+    </div>
+    `;
+
+    // Insert navbar at the beginning of the body
+    const firstChild = document.body.firstChild;
+    document.body.insertBefore(navbar, firstChild);
+}
+
 // Main application initialization
 document.addEventListener("DOMContentLoaded", function () {
+    // Add navbar to the page
+    addNavbar();
+    // Function to load export-import.js and show the start modal
+    function loadExportImportAndShowStartModal() {
+        if (!window.exportImportManager) {
+            const script = document.createElement('script');
+            script.src = 'static/export-import.js';
+            script.onload = function() {
+                console.log('Export/Import manager loaded successfully');
+                // If the manager is loaded but the button isn't visible yet, try to add it
+                if (window.exportImportManager && typeof window.addExportImportButton === 'function') {
+                    window.addExportImportButton();
+                }
+                // Show the start modal after the script is loaded
+                if (!window.joplinIntegration.token || !window.joplinIntegration.port_number) {
+                    window.modalManager.showStartModal();
+                }
+            };
+            script.onerror = function() {
+                console.error('Failed to load export-import.js');
+                // Show the start modal even if the script fails to load
+                if (!window.joplinIntegration.token || !window.joplinIntegration.port_number) {
+                    window.modalManager.showStartModal();
+                }
+            };
+            document.head.appendChild(script);
+        } else {
+            // If the script is already loaded, just show the start modal
+            if (!window.joplinIntegration.token || !window.joplinIntegration.port_number) {
+                window.modalManager.showStartModal();
+            }
+        }
+    }
+
     // Safety check for managers
     if (!window.uiManager) {
         console.error('UI Manager not initialized! Check script loading order.');
@@ -83,14 +144,75 @@ document.addEventListener("DOMContentLoaded", function () {
             window.modalManager.showFolderModal();
         }, 100);
     } else {
-        // First time user - show start modal
-        window.modalManager.showStartModal();
+        // First time user - load export-import.js and show start modal
+        loadExportImportAndShowStartModal();
     }
 });
 
 // Global event handlers
 function validatePort() {
     window.joplinIntegration.validatePort();
+}
+
+function startWithoutJoplin() {
+    // Set browser-only mode flag
+    window.joplinIntegration.browserOnlyMode = true;
+    console.log('Starting in browser-only mode');
+
+    // Clear existing note bodies cache
+    window.joplinIntegration.noteBodies = {};
+
+    // Clear existing kanban board if it exists
+    if (window.kanbanBoard.kanban) {
+        // Remove the entire kanban container to prevent duplicates
+        const kanbanContainer = document.querySelector('.kanban-container');
+        if (kanbanContainer && kanbanContainer.parentNode) {
+            kanbanContainer.parentNode.removeChild(kanbanContainer);
+        }
+
+        // Also clear the kanbanBoard element to ensure a clean slate
+        const kanbanBoard = document.getElementById('kanbanBoard');
+        if (kanbanBoard) {
+            kanbanBoard.innerHTML = '';
+        }
+    }
+
+    // Create a default empty board configuration
+    const defaultBoardConfig = {
+        title: "My Story Outline",
+        data: [
+            {
+                id: "board1",
+                title: "Act 1",
+                item: []
+            },
+            {
+                id: "board2",
+                title: "Act 2",
+                item: []
+            },
+            {
+                id: "board3",
+                title: "Act 3",
+                item: []
+            }
+        ]
+    };
+
+    // Initialize the board with the default configuration
+    window.kanbanBoard.init(defaultBoardConfig);
+
+    // Reset the unsaved changes flag since we're starting with a fresh state
+    if (window.exportImportManager) {
+        window.exportImportManager.hasUnsavedChanges = false;
+        window.exportImportManager.updateExportImportButton();
+    }
+
+    // Hide the start modal
+    window.modalManager.hideStartModal();
+
+    // Show the premade templates modal
+    window.modalManager.showPremadeModal();
 }
 
 function updateBoardTitle() {

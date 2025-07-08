@@ -19,9 +19,19 @@ class KanbanBoard {
                 window.joplinIntegration.getNoteBodyById(el.dataset.eid);
             },
             dropEl: function (el, target, source, sibling) {
+                // Mark as having unsaved changes if in browser-only mode
+                if (window.joplinIntegration.browserOnlyMode && window.exportImportManager) {
+                    window.exportImportManager.hasUnsavedChanges = true;
+                    window.exportImportManager.updateExportImportButton();
+                }
                 window.kanbanBoard.saveBoardState();
             },
             dragendBoard: function (el) {
+                // Mark as having unsaved changes if in browser-only mode
+                if (window.joplinIntegration.browserOnlyMode && window.exportImportManager) {
+                    window.exportImportManager.hasUnsavedChanges = true;
+                    window.exportImportManager.updateExportImportButton();
+                }
                 window.kanbanBoard.saveBoardState();
             },
             itemAddOptions: {
@@ -239,11 +249,19 @@ class KanbanBoard {
         document.querySelectorAll('.kanban-board').forEach(el => {
             let item = []
             el.querySelectorAll('.kanban-item').forEach(i => {
-                item.push({
+                const noteId = i.dataset.eid;
+                const noteData = {
                     title: i.childNodes[0].textContent,
-                    id: i.dataset.eid,
+                    id: noteId,
                     colorClass: i.dataset.colorclass
-                })
+                };
+
+                // Include note body if available in the cache
+                if (window.joplinIntegration.noteBodies[noteId]) {
+                    noteData.body = window.joplinIntegration.noteBodies[noteId].body;
+                }
+
+                item.push(noteData);
             })
             boards.push({
                 id: el.getAttribute('data-id'),
@@ -258,6 +276,12 @@ class KanbanBoard {
     }
 
     saveBoardState() {
+        // If we're in browser-only mode, don't try to save to Joplin
+        if (window.joplinIntegration.browserOnlyMode) {
+            console.log('Running in browser-only mode, not saving to Joplin');
+            return;
+        }
+
         let boardState = JSON.stringify(this.renderJSON(), null, 2);
         boardState = (
             "Quick link: https://itsthejoker.github.io/kanbaninator/?configNoteId=" + 
