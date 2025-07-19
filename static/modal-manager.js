@@ -7,6 +7,7 @@ class ModalManager {
         this.newNoteModal = null;
         this.premadeModal = null;
         this.titleModal = null;
+        this.unsavedChangesModal = null;
     }
 
     initModals() {
@@ -17,6 +18,10 @@ class ModalManager {
         this.newNoteModal = new bootstrap.Modal(document.getElementById('newNoteModal'));
         this.premadeModal = new bootstrap.Modal(document.getElementById('newPremadeModal'));
         this.titleModal = new bootstrap.Modal(document.getElementById('titleModal'));
+        
+        // Create and initialize the unsaved changes modal
+        this.createUnsavedChangesModal();
+        this.unsavedChangesModal = new bootstrap.Modal(document.getElementById('unsavedChangesModal'));
 
         // Let the animation manager know modals are ready, but in a safe way
         if (window.modalAnimationManager) {
@@ -27,6 +32,47 @@ class ModalManager {
                 console.log('Note: Using default modal animations');
             }
         }
+    }
+    
+    // Create the unsaved changes confirmation modal dynamically
+    createUnsavedChangesModal() {
+        // Check if the modal already exists
+        if (document.getElementById('unsavedChangesModal')) {
+            return;
+        }
+        
+        // Create the modal HTML
+        const modalHTML = `
+        <div class="modal modal-lg custom-animation" id="unsavedChangesModal" tabindex="-1"
+             aria-labelledby="unsavedChangesModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="unsavedChangesModalLabel">Unsaved Changes</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>You have unsaved changes. Are you sure you want to start a new project?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-primary" id="confirmNewProjectBtn">Confirm</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        `;
+        
+        // Add the modal to the document
+        const modalContainer = document.createElement('div');
+        modalContainer.innerHTML = modalHTML;
+        document.body.appendChild(modalContainer.firstElementChild);
+        
+        // Add event listener to the confirm button
+        document.getElementById('confirmNewProjectBtn').addEventListener('click', () => {
+            this.hideUnsavedChangesModal();
+            window.startWithoutJoplin();
+        });
     }
 
     // Show/hide modals
@@ -53,6 +99,18 @@ class ModalManager {
     hidePremadeModal() { this.premadeModal.hide(); }
     showTitleModal() { this.titleModal.show(); }
     hideTitleModal() { this.titleModal.hide(); }
+    showUnsavedChangesModal() { this.unsavedChangesModal.show(); }
+    hideUnsavedChangesModal() { 
+        this.unsavedChangesModal.hide();
+        
+        // Allow the animation to complete before cleaning up
+        setTimeout(() => {
+            // Let the animation manager handle cleanup
+            if (window.modalAnimationManager) {
+                window.modalAnimationManager.cleanupOrphanedBackdrops();
+            }
+        }, 350); // Slightly longer than the CSS transition
+    }
 
     populateFolderModal() {
         const bigList = document.getElementById("folderList");
