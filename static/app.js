@@ -11,6 +11,8 @@ function addNavbar() {
         </button>
         <div class="collapse navbar-collapse" id="navbarContent">
             <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <!-- New Project button will be added here -->
+                <li class="nav-item d-flex align-items-center me-2" id="newProjectButtonContainer"></li>
                 <!-- Export/Import button will be added here -->
                 <li class="nav-item d-flex align-items-center me-2" id="exportImportButtonContainer"></li>
                 <!-- Dark mode toggle will be added here -->
@@ -25,10 +27,41 @@ function addNavbar() {
     document.body.insertBefore(navbar, firstChild);
 }
 
+// Function to add the New Project button to the navbar
+function addNewProjectButton() {
+    // Create a button for starting a new project
+    const newProjectBtn = document.createElement('button');
+    newProjectBtn.className = 'btn btn-outline-light';
+    newProjectBtn.innerHTML = 'New Project';
+    newProjectBtn.title = 'Start a new project';
+    newProjectBtn.onclick = function() {
+        // Confirm before starting a new project if there are unsaved changes
+        if (window.joplinIntegration.browserOnlyMode && 
+            window.exportImportManager && 
+            window.exportImportManager.hasUnsavedChanges) {
+            window.modalManager.showUnsavedChangesModal();
+        } else {
+            window.startWithoutJoplin();
+        }
+    };
+
+    // Add the button to the navbar
+    const navbarContainer = document.getElementById('newProjectButtonContainer');
+    if (navbarContainer) {
+        navbarContainer.appendChild(newProjectBtn);
+    } else {
+        // If the navbar container isn't available, try again later
+        setTimeout(addNewProjectButton, 500);
+    }
+}
+
 // Main application initialization
 document.addEventListener("DOMContentLoaded", function () {
     // Add navbar to the page
     addNavbar();
+    
+    // Add the New Project button to the navbar
+    addNewProjectButton();
     // Function to load export-import.js and show the start modal
     function loadExportImportAndShowStartModal() {
         if (!window.exportImportManager) {
